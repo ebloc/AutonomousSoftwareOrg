@@ -4,7 +4,7 @@ Smart Contract Based Autonomous Organization for Sustainable Software
 ## About
 AutonomousSoftwareOrg is a Solidity smart contract that implements  an autonomous software organization to be used by software developers. 
 
-### Connect to AutonomousSoftwareOrg Contract on our local Ethereum based blockchain : http://ebloc.cmpe.boun.edu.tr
+### Connect to AutonomousSoftwareOrg Contract on our local Ethereum based blockchain : http://ebloc.cmpe.boun.edu.tr:8080  or http://ebloc.org 
 
 ```bash
 address="0xa196dc4c924e027973c17ee75befaa1545a09e28";
