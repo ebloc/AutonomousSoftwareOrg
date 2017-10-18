@@ -193,7 +193,7 @@ contract AutonomousSoftwareOrg {
     }
 
     function BecomeMemberCandidate(bytes32 url) public
-	not_member(msg.sender)  { 
+	not_member(msg.sender) { 
 
 	if(membersTryOut[msg.sender] == true)
 	    throw;
@@ -255,20 +255,20 @@ contract AutonomousSoftwareOrg {
     }
 
     function addSoftwareExecRecord(bytes32 softwareversion,bytes32 url,uint256 inputhash,uint256 outputhash) 
-    	member(msg.sender){
+    	member(msg.sender) {
 
 	execrecords.push(SoftwareExecRecord(msg.sender,softwareversion,url,inputhash,outputhash));
 	LogSoftwareExecRecord(msg.sender,softwareversion,url,inputhash,outputhash);
     }
 
-    function addSoftwareVersionRecord(bytes32 url,bytes32 version,uint256 sourcehash){
+    function addSoftwareVersionRecord(bytes32 url,bytes32 version,uint256 sourcehash) {
 
 	versions.push(SoftwareVersionRecord(msg.sender,url,version,sourcehash));
 	LogSoftwareVersionRecord(msg.sender,url,version,sourcehash);
     }
 
     function getSoftwareExecRecord(uint32 id) 
-	constant returns(address,bytes32,bytes32,uint256,uint256){
+	constant returns(address,bytes32,bytes32,uint256,uint256) {
 
 	return(execrecords[id].submitter,
 	       execrecords[id].softwareversion,
