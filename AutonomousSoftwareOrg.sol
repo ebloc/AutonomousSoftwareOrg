@@ -254,7 +254,8 @@ contract AutonomousSoftwareOrg {
 	usedbysoftware.push(addr) ; 
     }
 
-    function addSoftwareExecRecord(bytes32 softwareversion,bytes32 url,uint256 inputhash,uint256 outputhash){
+    function addSoftwareExecRecord(bytes32 softwareversion,bytes32 url,uint256 inputhash,uint256 outputhash) 
+    	member(msg.sender){
 
 	execrecords.push(SoftwareExecRecord(msg.sender,softwareversion,url,inputhash,outputhash));
 	LogSoftwareExecRecord(msg.sender,softwareversion,url,inputhash,outputhash);
