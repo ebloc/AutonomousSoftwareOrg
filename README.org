@@ -1,0 +1,13 @@
+* AutonomousSoftwareOrg
+Smart Contract Based Autonomous Organization for Sustainable Software
+
+** About
+AutonomousSoftwareOrg is a Solidity smart contract that implements an autonomous software organization to be used by software developers.
+
+*Design of a Smart Contract Based Autonomous Organization for Sustainable Software Paper Link:* [[https://ieeexplore.ieee.org/document/8109181]]
+
+*** AutonomousSoftwareOrg Smart Contract Address on Bloxberg
+
+#+begin_src bash
+0xabcd...
+#+end_src
