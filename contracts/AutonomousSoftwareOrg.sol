@@ -3,6 +3,8 @@
 pragma solidity >=0.7.0 <0.9.0;
 pragma experimental ABIEncoderV2;
 
+import "./eBlocBroker.sol";
+
 contract AutonomousSoftwareOrg {
     struct SoftwareVersionRecord {
         address submitter;
@@ -13,8 +15,8 @@ contract AutonomousSoftwareOrg {
 
     struct SoftwareExecRecord {
         address submitter;
-        string softwareVersion;
-        string url;
+        bytes32 sourceCodeHash;
+        uint32 index;
         bytes32[] inputHash;
         bytes32[] outputHash;
     }
@@ -58,6 +60,9 @@ contract AutonomousSoftwareOrg {
     mapping(bytes32 => uint) _hashToRoc;
     mapping(uint => bytes32) _rocToHash;
 
+    mapping(bytes32 => mapping(uint32 => bytes32[])) incoming;
+    mapping(bytes32 => mapping(uint32 => bytes32[])) outgoing;
+
     SoftwareVersionRecord[] versions;
     SoftwareExecRecord[]  execRecords;
 
@@ -67,7 +72,9 @@ contract AutonomousSoftwareOrg {
     bytes32[] citations;
     address[] usedBySoftware;
 
-    event LogSoftwareExecRecord(address submitter, string softwareVersion, string url, bytes32[]  inputHash, bytes32[] outputHash);
+    address public eBlocBrokerAddress;
+
+    event LogSoftwareExecRecord(address submitter, bytes32 sourceCodeHash, uint32 index, bytes32[]  inputHash, bytes32[] outputHash);
     event LogSoftwareVersionRecord(address submitter, string url, string version, bytes32 sourceCodeHash);
     event LogPropose(uint propNo, string title, string url, uint requestedFund, uint deadline);
     event LogProposalVote(uint voteCount, uint blockNum, address voter);
@@ -147,7 +154,7 @@ contract AutonomousSoftwareOrg {
         _;
     }
 
-    constructor(string memory name, uint8 m, uint8 n, string memory url) {
+    constructor(string memory name, uint8 m, uint8 n, string memory url, address _eBlocBrokerAddress) {
         if (m > n)
             revert();
 
@@ -161,6 +168,8 @@ contract AutonomousSoftwareOrg {
         numMembers = 1;
         M = m;
         N = n;
+
+        eBlocBrokerAddress = _eBlocBrokerAddress;
     }
 
     function ProposeProposal(string memory title, string memory url, uint256 propHash, uint requestedFund, uint deadline) public
@@ -214,7 +223,6 @@ contract AutonomousSoftwareOrg {
         member(msg.sender) notVotedForMember(memberNo) {
         membersInfo[memberNo-1].voted[msg.sender] = true;
         membersInfo[memberNo-1].voteCount++;
-
         if ((membersInfo[memberNo - 1].voteCount) * N >= (numMembers * M)) {
             if (members[membersInfo[memberNo - 1].memberAddr] == 0) {
                 members[membersInfo[memberNo - 1].memberAddr] = memberNo;
@@ -252,10 +260,26 @@ contract AutonomousSoftwareOrg {
         usedBySoftware.push(addr);
     }
 
-    function addSoftwareExecRecord(string memory softwareVersion, string memory url, bytes32[] memory inputHash, bytes32[] memory outputHash)
+    function addSoftwareExecRecord(bytes32 sourceCodeHash, uint32 index, bytes32[] memory inputHash, bytes32[] memory outputHash)
         public member(msg.sender) {
-        execRecords.push(SoftwareExecRecord(msg.sender, softwareVersion, url, inputHash, outputHash));
-        emit LogSoftwareExecRecord(msg.sender, softwareVersion, url, inputHash, outputHash);
+        if (eBlocBroker(eBlocBrokerAddress).doesProviderExist(msg.sender)) {
+            for (uint256 i = 0; i < inputHash.length; i++) {
+                incoming[sourceCodeHash][index].push(inputHash[i]);
+            }
+            for (uint256 i = 0; i < outputHash.length; i++) {
+                outgoing[sourceCodeHash][index].push(outputHash[i]);
+            }
+            // execRecords.push(SoftwareExecRecord(msg.sender, sourceCodeHash, index, inputHash, outputHash));
+            emit LogSoftwareExecRecord(msg.sender, sourceCodeHash, index, inputHash, outputHash);
+        }
+    }
+
+    function getIncomings(bytes32 sourceCodeHash, uint32 index) public view returns(bytes32[] memory){
+        return incoming[sourceCodeHash][index];
+    }
+
+    function getOutgoings(bytes32 sourceCodeHash, uint32 index) public view returns(bytes32[] memory){
+        return outgoing[sourceCodeHash][index];
     }
 
     function addSoftwareVersionRecord(string memory url, string memory version, bytes32 sourceCodeHash)
@@ -265,10 +289,10 @@ contract AutonomousSoftwareOrg {
     }
 
     function getSoftwareExecRecord(uint32 id)
-        public view returns(address, string memory, string memory, bytes32[] memory, bytes32[] memory) {
+        public view returns(address, bytes32, uint32, bytes32[] memory, bytes32[] memory) {
         return(execRecords[id].submitter,
-               execRecords[id].softwareVersion,
-               execRecords[id].url,
+               execRecords[id].sourceCodeHash,
+               execRecords[id].index,
                execRecords[id].inputHash,
                execRecords[id].outputHash);
     }
