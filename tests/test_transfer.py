@@ -69,32 +69,93 @@ def test_AutonomousSoftwareOrg(accounts, token):
     #
     input_hash = [md5_hash(), "0xabcd"]
     output_hash = [md5_hash(), "0xabcde"]
-    auto.addSoftwareExecRecord(se, 0, input_hash, output_hash, {"from": accounts[0]})
-
-    log()
     index = 0
+    auto.addSoftwareExecRecord(
+        se, index, input_hash, output_hash, {"from": accounts[0]}
+    )
+    # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    log()
     job_name = f"{se}_{index}"
     jobs = [job_name]
+
+    counter = 1
+    nodes = {}
     for job in jobs:
         output = job.split("_")
         _se = output[0]
         _index = output[1]
+        nodes[counter] = job
+        counter += 1
         output = auto.getIncomings(_se, _index)
         for h in output:
             _h = str(h)[2:].lstrip("0")
-            _h = f"0x{_h}"
+            # _h = f"0x{_h}"
             log(f"{_h} -> {job}", h=False)
+            nodes[counter] = _h
+            counter += 1
 
         output = auto.getOutgoings(_se, _index)
         for h in output:
             _h = str(h)[2:].lstrip("0")
-            _h = f"0x{_h}"
+            # _h = f"0x{_h}"
             log(f"{job} -> {_h}", h=False)
+            nodes[counter] = _h
+            counter += 1
 
         log(output)
 
     # output = auto.getSoftwareExecRecord(0)
     # log(output)
+
+    log("var nodes = new vis.DataSet([")
+    for key, value in nodes.items():
+        log("    {")
+        log(f"       id: {key},")
+        log(f'       label: "{value}",')
+        log(f'       title: "I have popup"')
+        if "_" in value:
+            log('       color: "#7BE141",')
+
+        log("    },")
+
+    log("]);")
+    log("var edges = new vis.DataSet([")
+    for job in jobs:
+        output = job.split("_")
+        _se = output[0]
+        _index = output[1]
+        nodes[counter] = _se
+        counter += 1
+        output = auto.getIncomings(_se, _index)
+        for h in output:
+            _h = str(h)[2:].lstrip("0")
+            # _h = f"0x{_h}"
+            # log(f"{_h} -> {job}", h=False)
+            _from = [*nodes.keys()][[*nodes.values()].index(_h)]
+            _to = [*nodes.keys()][[*nodes.values()].index(job)]
+
+            log("    { ", end="")
+            log(f'from: {_from}, to: {_to}, arrows: "to", color: ', end="")
+            log('{ color: "red" } },')
+            nodes[counter] = _h
+            counter += 1
+
+        output = auto.getOutgoings(_se, _index)
+        for h in output:
+            _h = str(h)[2:].lstrip("0")
+            # _h = f"0x{_h}"
+            # log(f"{job} -> {_h}", h=False)
+            _from = [*nodes.keys()][[*nodes.values()].index(job)]
+            _to = [*nodes.keys()][[*nodes.values()].index(_h)]
+            log("    { ", end="")
+            log(f'from: {_from}, to: {_to}, arrows: "to", color: ', end="")
+            log('{ color: "blue" } },')
+            nodes[counter] = _h
+            counter += 1
+
+        log("]);")
+
+        # log(output)
 
     breakpoint()  # DEBUG
 
