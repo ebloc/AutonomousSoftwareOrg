@@ -28,25 +28,59 @@
         <pre id="eventSpanContent"></pre>
 
         <script type="text/javascript">
-            // create an array with nodes
             var nodes = new vis.DataSet([
                 {
                     id: 1,
-                    label: "NodeNodeNodeNode",
-                    title: "I have a popup I have a popup!\nalperalper",
+                    label: "0de983fa7e1e0af211722f364d62844b_0",
+                    title: "I have popup",
+                    color: "#7BE141",
                 },
-                { id: 2, label: "Node 2", title: "I have a popup!" },
-                { id: 3, label: "Node 3", title: "I have a popup!" },
-                { id: 4, label: "Node 4", title: "I have a popup!" },
-                { id: 5, label: "Node 5", title: "I have a popup!" },
+                {
+                    id: 2,
+                    label: "3ce17578f4c9d2dc7425f965dc2d43d2",
+                    title: "I have popup",
+                },
+                {
+                    id: 3,
+                    label: "abcd",
+                    title: "I have popup",
+                },
+                {
+                    id: 4,
+                    label: "e5de2044d32c880e9cc7fc51150c43ba",
+                    title: "I have popup",
+                },
+                {
+                    id: 5,
+                    label: "abcde",
+                    title: "I have popup",
+                },
+                {
+                    id: 6,
+                    label: "45c12e38cebf7ca88540f9a555a57ce4",
+                    title: "I have popup",
+                },
+                {
+                    id: 7,
+                    label: "6bc1854689ef8f37d33f8c965f107273_0",
+                    title: "I have popup",
+                    color: "#7BE141",
+                },
+                {
+                    id: 8,
+                    label: "54582a85c7b90303968979b8fd0f3bec",
+                    title: "I have popup",
+                },
             ]);
-
-            // create an array with edges
             var edges = new vis.DataSet([
-                { from: 1, to: 3, arrows: "to", color: { color: "red" } },
-                { from: 1, to: 2 },
-                { from: 2, to: 4 },
-                { from: 2, to: 5 },
+                { from: 2, to: 1, arrows: "to", color: { color: "red" } },
+                { from: 3, to: 1, arrows: "to", color: { color: "red" } },
+                { from: 1, to: 4, arrows: "to", color: { color: "blue" } },
+                { from: 1, to: 5, arrows: "to", color: { color: "blue" } },
+                { from: 1, to: 6, arrows: "to", color: { color: "blue" } },
+                { from: 4, to: 7, arrows: "to", color: { color: "red" } },
+                { from: 5, to: 7, arrows: "to", color: { color: "red" } },
+                { from: 7, to: 8, arrows: "to", color: { color: "blue" } },
             ]);
 
             // create a network

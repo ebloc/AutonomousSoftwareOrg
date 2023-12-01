@@ -51,17 +51,17 @@ def _test_AutonomousSoftwareOrg(web3, accounts, chain):
     print(url + "|" + memberaddr)
 
     web3.eth.defaultAccount = accounts[0]
-    # 0=>1
+    # 0 => 1
     tx = autonomousSoftwareOrg.transact().VoteMemberCandidate(2)
     contract_address = chain.wait.for_receipt(tx)
 
     web3.eth.defaultAccount = accounts[1]
-    # 1=>2
+    # 1 => 2
     tx = autonomousSoftwareOrg.transact().VoteMemberCandidate(3)
     contract_address = chain.wait.for_receipt(tx)
 
     web3.eth.defaultAccount = accounts[0]
-    # 0=>2
+    # 0 => 2
     tx = autonomousSoftwareOrg.transact().VoteMemberCandidate(3)
     contract_address = chain.wait.for_receipt(tx)
 
@@ -69,7 +69,6 @@ def _test_AutonomousSoftwareOrg(web3, accounts, chain):
     web3.eth.defaultAccount = accounts[0]
     url, memberaddr, votecount = autonomousSoftwareOrg.call().getMemberInfo(2)
     print(url + "|" + memberaddr + "|" + str(votecount))
-
     (
         softwarename,
         balance,
@@ -201,5 +200,5 @@ def _test_AutonomousSoftwareOrg(web3, accounts, chain):
     )
 
     # web3.eth.defaultAccount = accounts[0];
-    # set_txn_hash     = autonomousSoftwareOrg.transact().WithdrawProposalFund(0); #fails not enough vote.
+    # set_txn_hash     = autonomousSoftwareOrg.transact().WithdrawProposalFund(0); # fails not enough vote
     # contract_address = chain.wait.for_receipt(tx)

@@ -23,12 +23,42 @@ def md5_hash():
     return "%032x" % _hash
 
 
-def test_AutonomousSoftwareOrg(accounts, token):
+def test_paper(web3, accounts, token):
     print(auto.getAutonomousSoftwareOrgInfo())
+    auto.BecomeMemberCandidate("0x", {"from": accounts[1]})
+    auto.BecomeMemberCandidate("0x", {"from": accounts[2]})
+    auto.BecomeMemberCandidate("0x", {"from": accounts[3]})
+    assert auto.getMemberInfoLength() == 4
+    log(auto.getCandidateMemberInfo(3))
+    auto.VoteMemberCandidate(2, {"from": accounts[0]})
+    auto.VoteMemberCandidate(3, {"from": accounts[1]})
+    auto.VoteMemberCandidate(3, {"from": accounts[0]})
+    log(auto.getMemberInfo(2, {"from": accounts[0]}))
+    log(auto.getAutonomousSoftwareOrgInfo())
+    log(auto.getMemberInfo(2, {"from": accounts[2]}))
+    auto.DelVoteMemberCandidate(3, {"from": accounts[0]})
+    auto.VoteMemberCandidate(3, {"from": accounts[0]})
+    log(auto.getMemberInfo(2, {"from": accounts[2]}))
+    log(auto.getAutonomousSoftwareOrgInfo())
+    auto.Donate({"from": accounts[5], "value": web3.toWei(2, "wei")})
+    auto.Donate({"from": accounts[6], "value": web3.toWei(2, "wei")})
+    blockNum = web3.eth.blockNumber
+    auto.ProposeProposal(
+        "Prop0", "1.0.0", "0x", 4, blockNum + 30, {"from": accounts[2]}
+    )
+    log(auto.getProposal(0))
+    auto.VoteForProposal(0, {"from": accounts[0]})
+    auto.VoteForProposal(0, {"from": accounts[1]})
+    auto.WithdrawProposalFund(0, {"from": accounts[2]})
+    log(auto.getProposal(0))
+    with brownie.reverts():
+        #: fails there is not enough vote
+        auto.WithdrawProposalFund(0, {"from": accounts[0]})
 
+
+def test_AutonomousSoftwareOrg(accounts, token):
     _hash = md5_hash()
     auto.addSoftwareVersionRecord("alper.com", "1.0.0", _hash, {"from": accounts[0]})
-
     output = auto.getSoftwareVersionRecords(0)
     log(output[1])
 
@@ -68,16 +98,21 @@ def test_AutonomousSoftwareOrg(accounts, token):
     )
     #
     input_hash = [md5_hash(), "0xabcd"]
-    output_hash = [md5_hash(), "0xabcde"]
+    output_hash = [md5_hash(), "0xabcde", md5_hash()]
     index = 0
     auto.addSoftwareExecRecord(
         se, index, input_hash, output_hash, {"from": accounts[0]}
     )
+    #
+    input_hash_1 = [output_hash[0], output_hash[1]]
+    output_hash_1 = [md5_hash()]
+    se_2 = md5_hash()
+    auto.addSoftwareExecRecord(
+        se_2, index, input_hash_1, output_hash_1, {"from": accounts[0]}
+    )
     # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     log()
-    job_name = f"{se}_{index}"
-    jobs = [job_name]
-
+    jobs = [f"{se}_{index}", f"{se_2}_{index}"]
     counter = 1
     nodes = {}
     for job in jobs:
@@ -90,35 +125,41 @@ def test_AutonomousSoftwareOrg(accounts, token):
         for h in output:
             _h = str(h)[2:].lstrip("0")
             # _h = f"0x{_h}"
-            log(f"{_h} -> {job}", h=False)
-            nodes[counter] = _h
-            counter += 1
+            try:
+                [*nodes.keys()][[*nodes.values()].index(_h)]
+            except:  # noqa
+                log(f"{_h} -> {job}", h=False)
+                nodes[counter] = _h
+                counter += 1
 
         output = auto.getOutgoings(_se, _index)
         for h in output:
             _h = str(h)[2:].lstrip("0")
             # _h = f"0x{_h}"
-            log(f"{job} -> {_h}", h=False)
-            nodes[counter] = _h
-            counter += 1
+            try:
+                [*nodes.keys()][[*nodes.values()].index(_h)]
+            except:  # noqa
+                log(f"{job} -> {_h}", h=False)
+                nodes[counter] = _h
+                counter += 1
 
         log(output)
 
     # output = auto.getSoftwareExecRecord(0)
     # log(output)
-
     log("var nodes = new vis.DataSet([")
     for key, value in nodes.items():
         log("    {")
         log(f"       id: {key},")
         log(f'       label: "{value}",')
-        log(f'       title: "I have popup"')
+        log('       title: "I have popup",')
         if "_" in value:
             log('       color: "#7BE141",')
 
         log("    },")
 
     log("]);")
+    # -----
     log("var edges = new vis.DataSet([")
     for job in jobs:
         output = job.split("_")
@@ -153,15 +194,8 @@ def test_AutonomousSoftwareOrg(accounts, token):
             nodes[counter] = _h
             counter += 1
 
-        log("]);")
+    log("]);")
 
-        # log(output)
+    # log(output)
 
     breakpoint()  # DEBUG
-
-
-"""
-digraph G {
-
-}
-"""

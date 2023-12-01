@@ -262,16 +262,19 @@ contract AutonomousSoftwareOrg {
 
     function addSoftwareExecRecord(bytes32 sourceCodeHash, uint32 index, bytes32[] memory inputHash, bytes32[] memory outputHash)
         public member(msg.sender) {
-        if (eBlocBroker(eBlocBrokerAddress).doesProviderExist(msg.sender)) {
-            for (uint256 i = 0; i < inputHash.length; i++) {
-                incoming[sourceCodeHash][index].push(inputHash[i]);
-            }
-            for (uint256 i = 0; i < outputHash.length; i++) {
-                outgoing[sourceCodeHash][index].push(outputHash[i]);
-            }
-            // execRecords.push(SoftwareExecRecord(msg.sender, sourceCodeHash, index, inputHash, outputHash));
-            emit LogSoftwareExecRecord(msg.sender, sourceCodeHash, index, inputHash, outputHash);
+        require(eBlocBroker(eBlocBrokerAddress).doesProviderExist(msg.sender));
+        for (uint256 i = 0; i < inputHash.length; i++) {
+            incoming[sourceCodeHash][index].push(inputHash[i]);
         }
+        for (uint256 i = 0; i < outputHash.length; i++) {
+            outgoing[sourceCodeHash][index].push(outputHash[i]);
+        }
+        // execRecords.push(SoftwareExecRecord(msg.sender, sourceCodeHash, index, inputHash, outputHash));
+        emit LogSoftwareExecRecord(msg.sender, sourceCodeHash, index, inputHash, outputHash);
+    }
+
+    function delSoftwareExecRecord(bytes32 sourceCodeHash, uint32 index) {
+        delete incoming[sourceCodeHash][index];
     }
 
     function getIncomings(bytes32 sourceCodeHash, uint32 index) public view returns(bytes32[] memory){
