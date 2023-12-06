@@ -10,9 +10,9 @@ def isolate(fn_isolation):
     pass
 
 
-@pytest.fixture(scope="module")
-def token(Token, accounts):
-    return Token.deploy("Test Token", "TST", 18, 1e21, {"from": accounts[0]})
+# @pytest.fixture(scope="module")
+# def token(Token, accounts):
+#     return Token.deploy("Test Token", "TST", 18, 1e21, {"from": accounts[0]})
 
 
 @pytest.fixture(scope="module")

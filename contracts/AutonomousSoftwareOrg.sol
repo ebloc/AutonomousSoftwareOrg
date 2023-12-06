@@ -48,7 +48,7 @@ contract AutonomousSoftwareOrg {
 
     string public softwareName;
 
-    uint public balance;
+    uint public weiBalance;
     uint public numMembers;
 
     uint8 public M;
@@ -63,6 +63,9 @@ contract AutonomousSoftwareOrg {
     mapping(bytes32 => mapping(uint32 => bytes32[])) incoming;
     mapping(bytes32 => mapping(uint32 => bytes32[])) outgoing;
 
+    mapping(bytes32 => mapping(uint32 => uint)) incomingLen;
+    mapping(bytes32 => mapping(uint32 => uint)) outgoingLen;
+
     SoftwareVersionRecord[] versions;
     SoftwareExecRecord[]  execRecords;
 
@@ -74,17 +77,17 @@ contract AutonomousSoftwareOrg {
 
     address public eBlocBrokerAddress;
 
-    event LogSoftwareExecRecord(address submitter, bytes32 sourceCodeHash, uint32 index, bytes32[]  inputHash, bytes32[] outputHash);
+    event LogSoftwareExecRecord(address indexed submitter, bytes32 indexed sourceCodeHash, uint32 index, bytes32[]  inputHash, bytes32[] outputHash);
     event LogSoftwareVersionRecord(address submitter, string url, string version, bytes32 sourceCodeHash);
     event LogPropose(uint propNo, string title, string url, uint requestedFund, uint deadline);
     event LogProposalVote(uint voteCount, uint blockNum, address voter);
     event LogDonation(address donor,uint amount,uint blknum);
     event LogWithdrawProposalFund(uint propNo, uint requestedFund, uint blockNum, address proposalOwner);
     event LogVoteMemberCandidate(uint memberNo,address voter,uint voteCount);
-    event LogHashROC(address indexed provider, bytes32 hash, uint32 roc, bool isIPFS);
+    event LogHashROC(address indexed provider, bytes32 hash, uint roc, bool isIPFS);
 
     modifier enough_fund_balance(uint propNo) {
-        require(balance >= proposals[propNo].requestedFund);
+        require(weiBalance >= proposals[propNo].requestedFund);
         _;
     }
 
@@ -164,7 +167,7 @@ contract AutonomousSoftwareOrg {
         _membersInfo.memberAddr = msg.sender;
         _membersInfo.voteCount = 0;
         members[msg.sender] = membersInfo.length;
-        balance = 0;
+        weiBalance = 0;
         numMembers = 1;
         M = m;
         N = n;
@@ -198,7 +201,7 @@ contract AutonomousSoftwareOrg {
         validProposalNo(propNo) withinDeadline(propNo)
         member(msg.sender) enough_fund_balance(propNo) proposalOwner(propNo)
         proposalMajority(propNo) {
-        balance -=  proposals[propNo].requestedFund;
+        weiBalance -=  proposals[propNo].requestedFund;
         if (proposals[propNo].withdrawn == true) {
             revert();
         }
@@ -246,7 +249,7 @@ contract AutonomousSoftwareOrg {
 
     function Donate() payable public
         nonzeroPaymentMade  {
-        balance += msg.value;
+        weiBalance += msg.value;
         donations.push(Donation(msg.sender,msg.value,block.number));
         emit LogDonation(msg.sender, msg.value, block.number);
 
@@ -266,24 +269,44 @@ contract AutonomousSoftwareOrg {
         for (uint256 i = 0; i < inputHash.length; i++) {
             incoming[sourceCodeHash][index].push(inputHash[i]);
         }
+        incomingLen[sourceCodeHash][index] = incomingLen[sourceCodeHash][index] + inputHash.length;
         for (uint256 i = 0; i < outputHash.length; i++) {
             outgoing[sourceCodeHash][index].push(outputHash[i]);
         }
-        // execRecords.push(SoftwareExecRecord(msg.sender, sourceCodeHash, index, inputHash, outputHash));
+        outgoingLen[sourceCodeHash][index] = outgoingLen[sourceCodeHash][index] + outputHash.length;
         emit LogSoftwareExecRecord(msg.sender, sourceCodeHash, index, inputHash, outputHash);
     }
 
-    function delSoftwareExecRecord(bytes32 sourceCodeHash, uint32 index) {
+    function delSoftwareExecRecord(bytes32 sourceCodeHash, uint32 index) public {
         delete incoming[sourceCodeHash][index];
+        delete outgoing[sourceCodeHash][index];
+        delete incomingLen[sourceCodeHash][index];
+        delete outgoingLen[sourceCodeHash][index];
     }
 
-    function getIncomings(bytes32 sourceCodeHash, uint32 index) public view returns(bytes32[] memory){
-        return incoming[sourceCodeHash][index];
+    function getIncomingLen(bytes32 sourceCodeHash, uint32 index) public view returns(uint) {
+        return incomingLen[sourceCodeHash][index];
     }
 
-    function getOutgoings(bytes32 sourceCodeHash, uint32 index) public view returns(bytes32[] memory){
-        return outgoing[sourceCodeHash][index];
+    function getOutgoingLen(bytes32 sourceCodeHash, uint32 index) public view returns(uint) {
+        return outgoingLen[sourceCodeHash][index];
     }
+
+    function getIncoming(bytes32 sourceCodeHash, uint32 index, uint i) public view returns(bytes32) {
+        return incoming[sourceCodeHash][index][i];
+    }
+
+    function getOutgoing(bytes32 sourceCodeHash, uint32 index, uint i) public view returns(bytes32) {
+        return outgoing[sourceCodeHash][index][i];
+    }
+
+    /* function getIncomings(bytes32 sourceCodeHash, uint32 index) public view returns(bytes32[] memory) { */
+    /*     return incoming[sourceCodeHash][index]; */
+    /* } */
+
+    /* function getOutgoings(bytes32 sourceCodeHash, uint32 index) public view returns(bytes32[] memory) { */
+    /*     return outgoing[sourceCodeHash][index]; */
+    /* } */
 
     function addSoftwareVersionRecord(string memory url, string memory version, bytes32 sourceCodeHash)
         public {
@@ -320,7 +343,7 @@ contract AutonomousSoftwareOrg {
 
     function getAutonomousSoftwareOrgInfo()
         public view returns (string memory, uint, uint, uint, uint) {
-        return (softwareName, balance, numMembers, M, N);
+        return (softwareName, weiBalance, numMembers, M, N);
     }
 
     function getMemberInfoLength()
@@ -392,9 +415,7 @@ contract AutonomousSoftwareOrg {
         return (usedBySoftware[usedBySoftwareNo]);
     }
 
-    // ------------------------------------------------------------------------------
-
-    function hashToRoc(bytes32 hash, uint32 roc, bool isIPFS) public returns (bool) {
+    function hashToRoc(bytes32 hash, uint roc, bool isIPFS) public returns (bool) {
         if (_hashToRoc[hash] == 0) {
             _hashToRoc[hash] = roc;
             _rocToHash[roc] = hash;
@@ -402,4 +423,13 @@ contract AutonomousSoftwareOrg {
         }
         return true;
     }
+
+    function getFromHashToRoc(bytes32 hash) public view returns (uint) {
+        return _hashToRoc[hash];
+    }
+
+    function getFromRocToHash(uint roc) public view returns (bytes32) {
+        return _rocToHash[roc];
+    }
+
 }

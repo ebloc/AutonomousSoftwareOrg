@@ -23,7 +23,7 @@ def md5_hash():
     return "%032x" % _hash
 
 
-def test_paper(web3, accounts, token):
+def test_paper(web3, accounts):
     print(auto.getAutonomousSoftwareOrgInfo())
     auto.BecomeMemberCandidate("0x", {"from": accounts[1]})
     auto.BecomeMemberCandidate("0x", {"from": accounts[2]})
@@ -56,7 +56,7 @@ def test_paper(web3, accounts, token):
         auto.WithdrawProposalFund(0, {"from": accounts[0]})
 
 
-def test_AutonomousSoftwareOrg(accounts, token):
+def test_AutonomousSoftwareOrg(accounts):
     _hash = md5_hash()
     auto.addSoftwareVersionRecord("alper.com", "1.0.0", _hash, {"from": accounts[0]})
     output = auto.getSoftwareVersionRecords(0)
@@ -65,10 +65,18 @@ def test_AutonomousSoftwareOrg(accounts, token):
     se = md5_hash()
     input_hash = [md5_hash(), "0xabcd"]
     output_hash = [md5_hash(), "0xabcde"]
-    auto.addSoftwareExecRecord(se, 0, input_hash, output_hash, {"from": accounts[0]})
+    with brownie.reverts():
+        auto.addSoftwareExecRecord(
+            se, 0, input_hash, output_hash, {"from": accounts[0]}
+        )
+
     input_hash = [md5_hash(), md5_hash(), md5_hash()]
     output_hash = [md5_hash(), md5_hash(), md5_hash()]
-    auto.addSoftwareExecRecord(se, 0, input_hash, output_hash, {"from": accounts[0]})
+    with brownie.reverts():
+        auto.addSoftwareExecRecord(
+            se, 0, input_hash, output_hash, {"from": accounts[0]}
+        )
+
     with brownie.reverts():
         output = auto.getSoftwareExecRecord(0)
         log(output)
@@ -121,7 +129,10 @@ def test_AutonomousSoftwareOrg(accounts, token):
         _index = output[1]
         nodes[counter] = job
         counter += 1
-        output = auto.getIncomings(_se, _index)
+        output = []
+        for i in range(auto.getIncomingLen(_se, _index)):
+            output.append(auto.getIncoming(_se, _index, i))
+
         for h in output:
             _h = str(h)[2:].lstrip("0")
             # _h = f"0x{_h}"
@@ -132,7 +143,10 @@ def test_AutonomousSoftwareOrg(accounts, token):
                 nodes[counter] = _h
                 counter += 1
 
-        output = auto.getOutgoings(_se, _index)
+        output = []
+        for i in range(auto.getOutgoingLen(_se, _index)):
+            output.append(auto.getOutgoing(_se, _index, i))
+
         for h in output:
             _h = str(h)[2:].lstrip("0")
             # _h = f"0x{_h}"
@@ -167,7 +181,10 @@ def test_AutonomousSoftwareOrg(accounts, token):
         _index = output[1]
         nodes[counter] = _se
         counter += 1
-        output = auto.getIncomings(_se, _index)
+        output = []
+        for i in range(auto.getIncomingLen(_se, _index)):
+            output.append(auto.getIncoming(_se, _index, i))
+
         for h in output:
             _h = str(h)[2:].lstrip("0")
             # _h = f"0x{_h}"
@@ -181,7 +198,10 @@ def test_AutonomousSoftwareOrg(accounts, token):
             nodes[counter] = _h
             counter += 1
 
-        output = auto.getOutgoings(_se, _index)
+        output = []
+        for i in range(auto.getOutgoingLen(_se, _index)):
+            output.append(auto.getOutgoing(_se, _index, i))
+
         for h in output:
             _h = str(h)[2:].lstrip("0")
             # _h = f"0x{_h}"
