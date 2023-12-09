@@ -8,14 +8,17 @@ from broker.eblocbroker_scripts.utils import Cent
 
 auto = None
 ebb = None
+roc = None
 
 
 @pytest.fixture(scope="module", autouse=True)
-def my_own_session_run_at_beginning(_Auto, _Ebb):
+def my_own_session_run_at_beginning(_Auto, _Ebb, _Roc):
     global auto  # type: ignore
     global ebb  # type: ignore
+    global roc
     auto = _Auto
     ebb = _Ebb
+    roc = _Roc
 
 
 def md5_hash():
@@ -134,13 +137,11 @@ def test_AutonomousSoftwareOrg(accounts):
             output.append(auto.getIncoming(_se, _index, i))
 
         for h in output:
-            _h = str(h)[2:].lstrip("0")
-            # _h = f"0x{_h}"
             try:
-                [*nodes.keys()][[*nodes.values()].index(_h)]
+                [*nodes.keys()][[*nodes.values()].index(h)]
             except:  # noqa
-                log(f"{_h} -> {job}", h=False)
-                nodes[counter] = _h
+                log(f"{h} -> {job}", h=False)
+                nodes[counter] = h
                 counter += 1
 
         output = []
@@ -148,13 +149,11 @@ def test_AutonomousSoftwareOrg(accounts):
             output.append(auto.getOutgoing(_se, _index, i))
 
         for h in output:
-            _h = str(h)[2:].lstrip("0")
-            # _h = f"0x{_h}"
             try:
-                [*nodes.keys()][[*nodes.values()].index(_h)]
+                [*nodes.keys()][[*nodes.values()].index(h)]
             except:  # noqa
-                log(f"{job} -> {_h}", h=False)
-                nodes[counter] = _h
+                log(f"{job} -> {h}", h=False)
+                nodes[counter] = h
                 counter += 1
 
         log(output)
@@ -165,9 +164,21 @@ def test_AutonomousSoftwareOrg(accounts):
     for key, value in nodes.items():
         log("    {")
         log(f"       id: {key},")
-        log(f'       label: "{value}",')
-        log('       title: "I have popup",')
-        if "_" in value:
+
+        if not isinstance(value, int):
+            val = value.split("_")[0]
+            val1 = value.split("_")[1]
+            log(f'       label: "{roc.getTokenIndex(val)}_{val1}",')
+        else:
+            log(f'       label: "{value}",')
+
+        if isinstance(value, int):
+            val = str(roc.getDataHash(value - 1)).replace("0x", "").lstrip("0")
+            log(f'       title: "{val}",')
+        else:
+            log(f'       title: "{value}",')
+
+        if "_" in str(value):
             log('       color: "#7BE141",')
 
         log("    },")
@@ -186,16 +197,14 @@ def test_AutonomousSoftwareOrg(accounts):
             output.append(auto.getIncoming(_se, _index, i))
 
         for h in output:
-            _h = str(h)[2:].lstrip("0")
-            # _h = f"0x{_h}"
             # log(f"{_h} -> {job}", h=False)
-            _from = [*nodes.keys()][[*nodes.values()].index(_h)]
+            _from = [*nodes.keys()][[*nodes.values()].index(h)]
             _to = [*nodes.keys()][[*nodes.values()].index(job)]
 
             log("    { ", end="")
             log(f'from: {_from}, to: {_to}, arrows: "to", color: ', end="")
             log('{ color: "red" } },')
-            nodes[counter] = _h
+            nodes[counter] = h
             counter += 1
 
         output = []
@@ -203,15 +212,13 @@ def test_AutonomousSoftwareOrg(accounts):
             output.append(auto.getOutgoing(_se, _index, i))
 
         for h in output:
-            _h = str(h)[2:].lstrip("0")
-            # _h = f"0x{_h}"
             # log(f"{job} -> {_h}", h=False)
             _from = [*nodes.keys()][[*nodes.values()].index(job)]
-            _to = [*nodes.keys()][[*nodes.values()].index(_h)]
+            _to = [*nodes.keys()][[*nodes.values()].index(h)]
             log("    { ", end="")
             log(f'from: {_from}, to: {_to}, arrows: "to", color: ', end="")
             log('{ color: "blue" } },')
-            nodes[counter] = _h
+            nodes[counter] = h
             counter += 1
 
     log("]);")

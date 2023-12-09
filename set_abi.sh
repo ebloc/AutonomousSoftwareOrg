@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ~/venv/bin/activate
+. ~/venv/bin/activate
 input="$(cat <<EOF
 import json
 file = open("abi.json","w")
@@ -9,5 +9,5 @@ file.close()
 EOF
 )"
 echo "$input"
-echo "$input" | brownie console --network bloxberg_core
+echo "$input" | brownie console --network development
 mv abi.json $HOME/ebloc-broker/broker/eblocbroker_scripts/abi_AutonomousSoftwareOrg.json

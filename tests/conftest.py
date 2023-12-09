@@ -24,7 +24,12 @@ def _Ebb(USDTmy, Lib, eBlocBroker, accounts):
 
 
 @pytest.fixture(scope="module")
-def _Auto(_Ebb, AutonomousSoftwareOrg, accounts):
+def _Roc(ResearchCertificate, accounts):
+    yield ResearchCertificate.deploy({"from": accounts[0]})
+
+
+@pytest.fixture(scope="module")
+def _Auto(_Ebb, _Roc, AutonomousSoftwareOrg, accounts):
     yield AutonomousSoftwareOrg.deploy(
-        "0x01234", 2, 3, "0x", _Ebb.address, {"from": accounts[0]}
+        "0x01234", 2, 3, "0x", _Ebb.address, _Roc.address, {"from": accounts[0]}
     )

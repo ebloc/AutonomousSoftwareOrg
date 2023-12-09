@@ -4,6 +4,7 @@ pragma solidity >=0.7.0 <0.9.0;
 pragma experimental ABIEncoderV2;
 
 import "./eBlocBroker.sol";
+import "./ResearchCertificate.sol";
 
 contract AutonomousSoftwareOrg {
     struct SoftwareVersionRecord {
@@ -60,8 +61,8 @@ contract AutonomousSoftwareOrg {
     mapping(bytes32 => uint) _hashToRoc;
     mapping(uint => bytes32) _rocToHash;
 
-    mapping(bytes32 => mapping(uint32 => bytes32[])) incoming;
-    mapping(bytes32 => mapping(uint32 => bytes32[])) outgoing;
+    mapping(bytes32 => mapping(uint32 => uint256[])) incoming;
+    mapping(bytes32 => mapping(uint32 => uint256[])) outgoing;
 
     mapping(bytes32 => mapping(uint32 => uint)) incomingLen;
     mapping(bytes32 => mapping(uint32 => uint)) outgoingLen;
@@ -76,6 +77,7 @@ contract AutonomousSoftwareOrg {
     address[] usedBySoftware;
 
     address public eBlocBrokerAddress;
+    address public ResearchCertificateAddress;
 
     event LogSoftwareExecRecord(address indexed submitter, bytes32 indexed sourceCodeHash, uint32 index, bytes32[]  inputHash, bytes32[] outputHash);
     event LogSoftwareVersionRecord(address submitter, string url, string version, bytes32 sourceCodeHash);
@@ -157,7 +159,7 @@ contract AutonomousSoftwareOrg {
         _;
     }
 
-    constructor(string memory name, uint8 m, uint8 n, string memory url, address _eBlocBrokerAddress) {
+    constructor(string memory name, uint8 m, uint8 n, string memory url, address _eBlocBrokerAddress, address _ResearchCertificateAddress) {
         if (m > n)
             revert();
 
@@ -173,6 +175,7 @@ contract AutonomousSoftwareOrg {
         N = n;
 
         eBlocBrokerAddress = _eBlocBrokerAddress;
+        ResearchCertificateAddress = _ResearchCertificateAddress;
     }
 
     function ProposeProposal(string memory title, string memory url, uint256 propHash, uint requestedFund, uint deadline) public
@@ -266,12 +269,17 @@ contract AutonomousSoftwareOrg {
     function addSoftwareExecRecord(bytes32 sourceCodeHash, uint32 index, bytes32[] memory inputHash, bytes32[] memory outputHash)
         public member(msg.sender) {
         require(eBlocBroker(eBlocBrokerAddress).doesProviderExist(msg.sender));
+        ResearchCertificate(ResearchCertificateAddress).createCertificate(msg.sender, sourceCodeHash);
+        //
         for (uint256 i = 0; i < inputHash.length; i++) {
-            incoming[sourceCodeHash][index].push(inputHash[i]);
+            uint256 tokenIndex = ResearchCertificate(ResearchCertificateAddress).createCertificate(msg.sender, inputHash[i]);
+            incoming[sourceCodeHash][index].push(tokenIndex);
         }
         incomingLen[sourceCodeHash][index] = incomingLen[sourceCodeHash][index] + inputHash.length;
+        //
         for (uint256 i = 0; i < outputHash.length; i++) {
-            outgoing[sourceCodeHash][index].push(outputHash[i]);
+            uint256 tokenIndex = ResearchCertificate(ResearchCertificateAddress).createCertificate(msg.sender, outputHash[i]);
+            outgoing[sourceCodeHash][index].push(tokenIndex);
         }
         outgoingLen[sourceCodeHash][index] = outgoingLen[sourceCodeHash][index] + outputHash.length;
         emit LogSoftwareExecRecord(msg.sender, sourceCodeHash, index, inputHash, outputHash);
@@ -292,21 +300,13 @@ contract AutonomousSoftwareOrg {
         return outgoingLen[sourceCodeHash][index];
     }
 
-    function getIncoming(bytes32 sourceCodeHash, uint32 index, uint i) public view returns(bytes32) {
+    function getIncoming(bytes32 sourceCodeHash, uint32 index, uint i) public view returns(uint256) {
         return incoming[sourceCodeHash][index][i];
     }
 
-    function getOutgoing(bytes32 sourceCodeHash, uint32 index, uint i) public view returns(bytes32) {
+    function getOutgoing(bytes32 sourceCodeHash, uint32 index, uint i) public view returns(uint256) {
         return outgoing[sourceCodeHash][index][i];
     }
-
-    /* function getIncomings(bytes32 sourceCodeHash, uint32 index) public view returns(bytes32[] memory) { */
-    /*     return incoming[sourceCodeHash][index]; */
-    /* } */
-
-    /* function getOutgoings(bytes32 sourceCodeHash, uint32 index) public view returns(bytes32[] memory) { */
-    /*     return outgoing[sourceCodeHash][index]; */
-    /* } */
 
     function addSoftwareVersionRecord(string memory url, string memory version, bytes32 sourceCodeHash)
         public {
