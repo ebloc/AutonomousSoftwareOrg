@@ -1,0 +1,57 @@
+## network=sepoliaBrownie v1.19.3 - Python development framework for Ethereum
+
+New compatible solc version available: 0.8.22
+Compiling contracts...
+  Solc version: 0.8.22
+  Optimizer: Enabled  Runs: 200
+  EVM Version: Istanbul
+Generating build data...
+ - AutonomousSoftwareOrg
+ - Counters
+ - EBlocBrokerBase
+ - ERC165
+ - Context
+ - ERC20
+ - IERC20
+ - IERC20Metadata
+ - Ownable
+ - USDTmy
+ - IERC165
+ - IERC721
+ - IERC721Metadata
+ - IERC721Receiver
+ - Lib
+ - Math
+ - ERC721
+ - ResearchCertificate
+ - SafeMath
+ - SafeMath32
+ - SignedMath
+ - Strings
+ - IERC1155Errors
+ - IERC20Errors
+ - IERC721Errors
+ - eBlocBroker
+ - eBlocBrokerInterface
+
+Compiling contracts...
+  Solc version: 0.6.12
+  Optimizer: Enabled  Runs: 200
+  EVM Version: Istanbul
+Generating build data...
+ - SafeMath
+ - SafeMath32
+ - Token
+
+Project has been compiled. Build artifacts saved at /home/alper/git/AutonomousSoftwareOrg/build/contracts
+Brownie v1.19.3 - Python development framework for Ethereum
+
+AutonomoussoftwareorgProject is the active project.
+
+Running '[0;1;34mscripts/AutonomousSoftwareOrg.py[0;m::[0;1;36mmain[0;m'...
+Transaction sent: [0;1;34m0xf606c1d30cff8e22bacc96a8111229e5a01e6c945a846256c2e3ef60fc045bb0[0;m
+  Gas price: [0;1;34m1.094102737[0;m gwei   Gas limit: [0;1;34m3109199[0;m   Nonce: [0;1;34m7[0;m
+  Waiting for confirmation... -  Waiting for confirmation... \  Waiting for confirmation... |  Waiting for confirmation... /  Waiting for confirmation... -  Waiting for confirmation... \  Waiting for confirmation... |  AutonomousSoftwareOrg.constructor confirmed   Block: [0;1;34m4936873[0;m   Gas used: [0;1;34m2826545[0;m ([0;1;34m90.91%[0;m)
+  AutonomousSoftwareOrg deployed at: [0;1;34m0xccD25f5Ae21037a6DCCff829B01034E2fD332796[0;m
+
+## setting abi... done
