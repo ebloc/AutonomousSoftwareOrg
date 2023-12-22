@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Vis Network | Events | Interaction events</title>
+
+        <script
+            type="text/javascript"
+            src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"
+        ></script>
+
+        <style type="text/css">
+            #mynetwork {
+                width: 1200px;
+                height: 800px;
+                border: 1px solid lightgray;
+            }
+        </style>
+    </head>
+    <body>
+        <p>
+            Create a simple network with some nodes and edges. Some of the events are
+            logged in the console in improve readability.
+        </p>
+
+        <div id="mynetwork"></div>
+
+        <h2 id="eventSpanHeading"></h2>
+        <pre id="eventSpanContent"></pre>
+
+        <script type="text/javascript">
+            var nodes = new vis.DataSet([
+                {
+                    id: 1,
+                    label: "0de983fa7e1e0af211722f364d62844b_0",
+                    title: "I have popup",
+                    color: "#7BE141",
+                },
+                {
+                    id: 2,
+                    label: "3ce17578f4c9d2dc7425f965dc2d43d2",
+                    title: "I have popup",
+                },
+                {
+                    id: 3,
+                    label: "abcd",
+                    title: "I have popup",
+                },
+                {
+                    id: 4,
+                    label: "e5de2044d32c880e9cc7fc51150c43ba",
+                    title: "I have popup",
+                },
+                {
+                    id: 5,
+                    label: "abcde",
+                    title: "I have popup",
+                },
+                {
+                    id: 6,
+                    label: "45c12e38cebf7ca88540f9a555a57ce4",
+                    title: "I have popup",
+                },
+                {
+                    id: 7,
+                    label: "6bc1854689ef8f37d33f8c965f107273_0",
+                    title: "I have popup",
+                    color: "#7BE141",
+                },
+                {
+                    id: 8,
+                    label: "54582a85c7b90303968979b8fd0f3bec",
+                    title: "I have popup",
+                },
+            ]);
+            var edges = new vis.DataSet([
+                { from: 2, to: 1, arrows: "to", color: { color: "red" } },
+                { from: 3, to: 1, arrows: "to", color: { color: "red" } },
+                { from: 1, to: 4, arrows: "to", color: { color: "blue" } },
+                { from: 1, to: 5, arrows: "to", color: { color: "blue" } },
+                { from: 1, to: 6, arrows: "to", color: { color: "blue" } },
+                { from: 4, to: 7, arrows: "to", color: { color: "red" } },
+                { from: 5, to: 7, arrows: "to", color: { color: "red" } },
+                { from: 7, to: 8, arrows: "to", color: { color: "blue" } },
+            ]);
+
+            // create a network
+            var container = document.getElementById("mynetwork");
+            var data = {
+                nodes: nodes,
+                edges: edges,
+            };
+
+            var options = {
+                interaction: { hover: true },
+                manipulation: {
+                    enabled: false,
+                },
+            };
+
+            var network = new vis.Network(container, data, options);
+
+            network.on("click", function (params) {
+                params.event = "[original event]";
+                document.getElementById("eventSpanHeading").innerText = "Click event:";
+                document.getElementById("eventSpanContent").innerText = JSON.stringify(
+                    params,
+                    null,
+                    4,
+                );
+                console.log(
+                    "click event, getNodeAt returns: " +
+                        this.getNodeAt(params.pointer.DOM),
+                );
+            });
+            network.on("doubleClick", function (params) {
+                params.event = "[original event]";
+                document.getElementById("eventSpanHeading").innerText =
+                    "doubleClick event:";
+                document.getElementById("eventSpanContent").innerText = JSON.stringify(
+                    params,
+                    null,
+                    4,
+                );
+            });
+            network.on("oncontext", function (params) {
+                params.event = "[original event]";
+                document.getElementById("eventSpanHeading").innerText =
+                    "oncontext (right click) event:";
+                document.getElementById("eventSpanContent").innerText = JSON.stringify(
+                    params,
+                    null,
+                    4,
+                );
+            });
+            network.on("dragStart", function (params) {
+                // There's no point in displaying this event on screen, it gets immediately overwritten
+                params.event = "[original event]";
+                console.log("dragStart Event:", params);
+                console.log(
+                    "dragStart event, getNodeAt returns: " +
+                        this.getNodeAt(params.pointer.DOM),
+                );
+            });
+            network.on("dragging", function (params) {
+                params.event = "[original event]";
+                document.getElementById("eventSpanHeading").innerText =
+                    "dragging event:";
+                document.getElementById("eventSpanContent").innerText = JSON.stringify(
+                    params,
+                    null,
+                    4,
+                );
+            });
+            network.on("dragEnd", function (params) {
+                params.event = "[original event]";
+                document.getElementById("eventSpanHeading").innerText =
+                    "dragEnd event:";
+                document.getElementById("eventSpanContent").innerText = JSON.stringify(
+                    params,
+                    null,
+                    4,
+                );
+                console.log("dragEnd Event:", params);
+                console.log(
+                    "dragEnd event, getNodeAt returns: " +
+                        this.getNodeAt(params.pointer.DOM),
+                );
+            });
+            network.on("controlNodeDragging", function (params) {
+                params.event = "[original event]";
+                document.getElementById("eventSpanHeading").innerText =
+                    "control node dragging event:";
+                document.getElementById("eventSpanContent").innerText = JSON.stringify(
+                    params,
+                    null,
+                    4,
+                );
+            });
+            network.on("controlNodeDragEnd", function (params) {
+                params.event = "[original event]";
+                document.getElementById("eventSpanHeading").innerText =
+                    "control node drag end event:";
+                document.getElementById("eventSpanContent").innerText = JSON.stringify(
+                    params,
+                    null,
+                    4,
+                );
+                console.log("controlNodeDragEnd Event:", params);
+            });
+            network.on("zoom", function (params) {
+                document.getElementById("eventSpanHeading").innerText = "zoom event:";
+                document.getElementById("eventSpanContent").innerText = JSON.stringify(
+                    params,
+                    null,
+                    4,
+                );
+            });
+            network.on("showPopup", function (params) {
+                document.getElementById("eventSpanHeading").innerText =
+                    "showPopup event: ";
+                document.getElementById("eventSpanContent").innerText = JSON.stringify(
+                    params,
+                    null,
+                    4,
+                );
+            });
+            network.on("hidePopup", function () {
+                console.log("hidePopup Event");
+            });
+            network.on("select", function (params) {
+                console.log("select Event:", params);
+            });
+            network.on("selectNode", function (params) {
+                console.log("selectNode Event:", params);
+            });
+            network.on("selectEdge", function (params) {
+                console.log("selectEdge Event:", params);
+            });
+            network.on("deselectNode", function (params) {
+                console.log("deselectNode Event:", params);
+            });
+            network.on("deselectEdge", function (params) {
+                console.log("deselectEdge Event:", params);
+            });
+            network.on("hoverNode", function (params) {
+                console.log("hoverNode Event:", params);
+            });
+            network.on("hoverEdge", function (params) {
+                console.log("hoverEdge Event:", params);
+            });
+            network.on("blurNode", function (params) {
+                console.log("blurNode Event:", params);
+            });
+            network.on("blurEdge", function (params) {
+                console.log("blurEdge Event:", params);
+            });
+        </script>
+    </body>
+</html>
