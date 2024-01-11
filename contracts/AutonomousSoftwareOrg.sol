@@ -104,7 +104,7 @@ contract AutonomousSoftwareOrg {
     }
 
     modifier member(address addr) {
-        require( members[addr] != 0);
+        require(members[addr] != 0);
         _;
     }
 

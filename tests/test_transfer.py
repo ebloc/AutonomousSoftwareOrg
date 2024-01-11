@@ -164,7 +164,6 @@ def test_AutonomousSoftwareOrg(accounts):
     for key, value in nodes.items():
         log("    {")
         log(f"       id: {key},")
-
         if not isinstance(value, int):
             val = value.split("_")[0]
             val1 = value.split("_")[1]
@@ -184,7 +183,7 @@ def test_AutonomousSoftwareOrg(accounts):
         log("    },")
 
     log("]);")
-    # -----
+    # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     log("var edges = new vis.DataSet([")
     for job in jobs:
         output = job.split("_")
