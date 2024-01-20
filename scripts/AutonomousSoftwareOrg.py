@@ -2,18 +2,13 @@
 
 import json
 
-from brownie import accounts, network, AutonomousSoftwareOrg
+from brownie import accounts, network, eBlocBrokerGetter
 
 
 def main():
     acct = accounts.load("alper.json", password="alper")
-    auto = AutonomousSoftwareOrg.deploy(
-        "0x01234",
-        2,
-        3,
-        "0x",
-        "0x00A7413ACb69D7F9a03ab92B77c49628bD340274",  # eBlocBroker
-        "0x17e85EF468e5e085659d0443e29856a9054f0E7A",  # ResearchCertificate
+    auto = eBlocBrokerGetter.deploy(
+        "0xE4EB4A044F77b7526622AAC12CCF5b9B3F1C30F6",  # eBlocBroker
         {"from": acct},
     )
     if network.show_active() == "private":
