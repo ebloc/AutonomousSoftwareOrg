@@ -8,7 +8,7 @@ from brownie import accounts, network, eBlocBrokerGetter
 def main():
     acct = accounts.load("alper.json", password="alper")
     auto = eBlocBrokerGetter.deploy(
-        "0xE4EB4A044F77b7526622AAC12CCF5b9B3F1C30F6",  # eBlocBroker
+        "0xAf3095FA409a4043d679a65D287658346bf38E7A",  # eBlocBroker
         {"from": acct},
     )
     if network.show_active() == "private":
