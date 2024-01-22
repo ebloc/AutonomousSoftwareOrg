@@ -67,8 +67,10 @@ contract AutonomousSoftwareOrg {
     mapping(bytes32 => mapping(uint32 => uint)) incomingLen;
     mapping(bytes32 => mapping(uint32 => uint)) outgoingLen;
 
-    SoftwareVersionRecord[] versions;
-    SoftwareExecRecord[]  execRecords;
+    mapping(bytes32 => string) versionRecord;
+    mapping(bytes32 => mapping(string => string)) nameRecord;
+
+    SoftwareVersionRecord[] versionRecords;
 
     MemberInfo[] membersInfo;
     Proposal[] proposals;
@@ -119,7 +121,7 @@ contract AutonomousSoftwareOrg {
     }
 
     modifier withinDeadline(uint propNo) {
-        require( proposals[propNo].deadline > block.number);
+        require(proposals[propNo].deadline > block.number);
         _;
     }
 
@@ -129,12 +131,12 @@ contract AutonomousSoftwareOrg {
     }
 
     modifier notVotedForMember(uint memberNo) {
-        require(! membersInfo[memberNo-1].voted[msg.sender]);
+        require(! membersInfo[memberNo - 1].voted[msg.sender]);
         _;
     }
 
     modifier votedForMember(uint memberNo) {
-        require(membersInfo[memberNo-1].voted[msg.sender]);
+        require(membersInfo[memberNo - 1].voted[msg.sender]);
         _;
     }
 
@@ -156,6 +158,11 @@ contract AutonomousSoftwareOrg {
 
     modifier nonzeroPaymentMade() {
         require(msg.value > 0);
+        _;
+    }
+
+    modifier validEblocBrokerProvider() {
+        require(eBlocBroker(eBlocBrokerAddress).doesProviderExist(msg.sender));
         _;
     }
 
@@ -227,8 +234,8 @@ contract AutonomousSoftwareOrg {
 
     function VoteMemberCandidate(uint memberNo) public validMemberNo(memberNo)
         member(msg.sender) notVotedForMember(memberNo) {
-        membersInfo[memberNo-1].voted[msg.sender] = true;
-        membersInfo[memberNo-1].voteCount++;
+        membersInfo[memberNo - 1].voted[msg.sender] = true;
+        membersInfo[memberNo - 1].voteCount++;
         if ((membersInfo[memberNo - 1].voteCount) * N >= (numMembers * M)) {
             if (members[membersInfo[memberNo - 1].memberAddr] == 0) {
                 members[membersInfo[memberNo - 1].memberAddr] = memberNo;
@@ -240,11 +247,11 @@ contract AutonomousSoftwareOrg {
 
     function DelVoteMemberCandidate(uint memberNo) public
         validMemberNo(memberNo) member(msg.sender) votedForMember(memberNo) {
-        membersInfo[memberNo-1].voted[msg.sender] = false;
-        membersInfo[memberNo-1].voteCount--;
-        if ((membersInfo[memberNo-1].voteCount * N) < (numMembers*M)) {
-            if (members[membersInfo[memberNo-1].memberAddr] != 0) {
-                delete(members[membersInfo[memberNo-1].memberAddr]);
+        membersInfo[memberNo - 1].voted[msg.sender] = false;
+        membersInfo[memberNo - 1].voteCount--;
+        if ((membersInfo[memberNo - 1].voteCount * N) < (numMembers*M)) {
+            if (members[membersInfo[memberNo - 1].memberAddr] != 0) {
+                delete(members[membersInfo[memberNo - 1].memberAddr]);
                 numMembers--;
             }
         }
@@ -266,9 +273,22 @@ contract AutonomousSoftwareOrg {
         usedBySoftware.push(addr);
     }
 
+    function getSoftwareVersion(bytes32 sourceCodeHash) public view returns(string memory) {
+        return versionRecord[sourceCodeHash];
+    }
+
+    function getSoftwareName(bytes32 sourceCodeHash, string memory version) public view returns(string memory) {
+        return nameRecord[sourceCodeHash][version];
+    }
+
+    function setSoftwareNameVersion(bytes32 sourceCodeHash,  string memory name, string memory version)
+        public member(msg.sender) validEblocBrokerProvider() {
+        versionRecord[sourceCodeHash] = version;
+        nameRecord[sourceCodeHash][version] = name;
+    }
+
     function addSoftwareExecRecord(bytes32 sourceCodeHash, uint32 index, bytes32[] memory inputHash, bytes32[] memory outputHash)
-        public member(msg.sender) {
-        require(eBlocBroker(eBlocBrokerAddress).doesProviderExist(msg.sender));
+        public member(msg.sender) validEblocBrokerProvider() {
         ResearchCertificate(ResearchCertificateAddress).createCertificate(msg.sender, sourceCodeHash);
         //
         for (uint256 i = 0; i < inputHash.length; i++) {
@@ -308,37 +328,28 @@ contract AutonomousSoftwareOrg {
         return outgoing[sourceCodeHash][index][i];
     }
 
-    function addSoftwareVersionRecord(string memory url, string memory version, bytes32 sourceCodeHash)
+    function getVersionRecord(bytes32 sourceCodeHash) public view returns(string memory) {
+        return versionRecord[sourceCodeHash];
+    }
+
+    function addSoftwareVersionRecord(string memory url, bytes32 sourceCodeHash, string memory version)
         public {
-        versions.push(SoftwareVersionRecord(msg.sender, url, version, sourceCodeHash));
+        require(eBlocBroker(eBlocBrokerAddress).doesProviderExist(msg.sender));
+        versionRecords.push(SoftwareVersionRecord(msg.sender, url, version, sourceCodeHash));
         emit LogSoftwareVersionRecord(msg.sender, url, version, sourceCodeHash);
-    }
-
-    function getSoftwareExecRecord(uint32 id)
-        public view returns(address, bytes32, uint32, bytes32[] memory, bytes32[] memory) {
-        return(execRecords[id].submitter,
-               execRecords[id].sourceCodeHash,
-               execRecords[id].index,
-               execRecords[id].inputHash,
-               execRecords[id].outputHash);
-    }
-
-    function getSoftwareExecRecordLength()
-        public view returns (uint) {
-        return(execRecords.length);
     }
 
     function getSoftwareVersionRecords(uint32 id)
         public view returns(address, string memory, string memory, bytes32) {
-        return(versions[id].submitter,
-               versions[id].url,
-               versions[id].version,
-               versions[id].sourceCodeHash);
+        return(versionRecords[id].submitter,
+               versionRecords[id].url,
+               versionRecords[id].version,
+               versionRecords[id].sourceCodeHash);
     }
 
     function geSoftwareVersionRecordsLength()
         public view returns (uint) {
-        return(versions.length);
+        return(versionRecords.length);
     }
 
     function getAutonomousSoftwareOrgInfo()
@@ -352,7 +363,7 @@ contract AutonomousSoftwareOrg {
     }
 
     function getMemberInfo(uint memberNo)
-        member(membersInfo[memberNo-1].memberAddr)
+        member(membersInfo[memberNo - 1].memberAddr)
         public view returns (string memory, address, uint) {
         return (membersInfo[memberNo - 1].url,
                 membersInfo[memberNo - 1].memberAddr,
@@ -362,9 +373,9 @@ contract AutonomousSoftwareOrg {
     function getCandidateMemberInfo(uint memberNo)
         notMember(membersInfo[memberNo - 1].memberAddr)
         public view returns (string memory, address, uint) {
-        return (membersInfo[memberNo-1].url,
-                membersInfo[memberNo-1].memberAddr,
-                membersInfo[memberNo-1].voteCount);
+        return (membersInfo[memberNo - 1].url,
+                membersInfo[memberNo - 1].memberAddr,
+                membersInfo[memberNo - 1].voteCount);
     }
 
     function getProposalsLength()

@@ -60,31 +60,22 @@ def test_paper(web3, accounts):
 
 
 def test_AutonomousSoftwareOrg(accounts):
-    _hash = md5_hash()
-    auto.addSoftwareVersionRecord("alper.com", "1.0.0", _hash, {"from": accounts[0]})
-    output = auto.getSoftwareVersionRecords(0)
-    log(output[1])
-
     se = md5_hash()
     input_hash = [md5_hash(), "0xabcd"]
     output_hash = [md5_hash(), "0xabcde"]
     with brownie.reverts():
+        index = 0
         auto.addSoftwareExecRecord(
-            se, 0, input_hash, output_hash, {"from": accounts[0]}
+            se, index, input_hash, output_hash, {"from": accounts[0]}
         )
 
     input_hash = [md5_hash(), md5_hash(), md5_hash()]
     output_hash = [md5_hash(), md5_hash(), md5_hash()]
     with brownie.reverts():
+        index = 0
         auto.addSoftwareExecRecord(
-            se, 0, input_hash, output_hash, {"from": accounts[0]}
+            se, index, input_hash, output_hash, {"from": accounts[0]}
         )
-
-    with brownie.reverts():
-        output = auto.getSoftwareExecRecord(0)
-        log(output)
-        output = auto.getSoftwareExecRecord(1)
-        log(output)
 
     GPG_FINGERPRINT = "0359190A05DF2B72729344221D522F92EFA2F330"
     provider_gmail = "provider_test@gmail.com"
@@ -107,6 +98,12 @@ def test_AutonomousSoftwareOrg(accounts):
         commitment_bn,
         {"from": accounts[0]},
     )
+    _hash = md5_hash()
+    auto.addSoftwareVersionRecord(
+        "github.com/ebloc/ebloc-broker", _hash, "v1.0.0", {"from": accounts[0]}
+    )
+    output = auto.getSoftwareVersionRecords(0)
+    log(output[1])
     #
     input_hash = [md5_hash(), "0xabcd"]
     output_hash = [md5_hash(), "0xabcde", md5_hash()]
@@ -114,6 +111,9 @@ def test_AutonomousSoftwareOrg(accounts):
     auto.addSoftwareExecRecord(
         se, index, input_hash, output_hash, {"from": accounts[0]}
     )
+    tx = auto.setSoftwareNameVersion(se, "matlab", "v1.0.0")
+    assert auto.getSoftwareVersion(se) == "v1.0.0"
+    assert auto.getSoftwareName(se, auto.getSoftwareVersion(se)) == "matlab"
     #
     input_hash_1 = [output_hash[0], output_hash[1]]
     output_hash_1 = [md5_hash()]

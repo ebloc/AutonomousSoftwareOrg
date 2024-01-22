@@ -522,7 +522,6 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     // -=-=-=-=-
 
     mapping(uint256 => bytes32) private _tokenURIs;
-
     mapping(uint256 => bytes32) private _hashIDs;
 
     /**
