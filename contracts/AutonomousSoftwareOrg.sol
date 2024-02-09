@@ -70,6 +70,10 @@ contract AutonomousSoftwareOrg {
     mapping(bytes32 => string) versionRecord;
     mapping(bytes32 => mapping(string => string)) nameRecord;
 
+    uint32 softwareExecutionNumber;
+    uint32 globalIndexCounter;
+    address[] owner;
+
     SoftwareVersionRecord[] versionRecords;
 
     MemberInfo[] membersInfo;
@@ -89,6 +93,7 @@ contract AutonomousSoftwareOrg {
     event LogWithdrawProposalFund(uint propNo, uint requestedFund, uint blockNum, address proposalOwner);
     event LogVoteMemberCandidate(uint memberNo,address voter,uint voteCount);
     event LogHashROC(address indexed provider, bytes32 hash, uint roc, bool isIPFS);
+    event LogSoftwareNameVersion(address indexed provider, bytes32 sourceCodeHash, string name, string version);
 
     modifier enough_fund_balance(uint propNo) {
         require(weiBalance >= proposals[propNo].requestedFund);
@@ -166,6 +171,12 @@ contract AutonomousSoftwareOrg {
         _;
     }
 
+
+    modifier softwareOwnerCheck(uint index) {
+        require(owner[index] == msg.sender);
+        _;
+    }
+
     constructor(string memory name, uint8 m, uint8 n, string memory url, address _eBlocBrokerAddress, address _ResearchCertificateAddress) {
         if (m > n)
             revert();
@@ -181,6 +192,7 @@ contract AutonomousSoftwareOrg {
         M = m;
         N = n;
 
+        owner.push(msg.sender); // dummy address
         eBlocBrokerAddress = _eBlocBrokerAddress;
         ResearchCertificateAddress = _ResearchCertificateAddress;
     }
@@ -273,22 +285,24 @@ contract AutonomousSoftwareOrg {
         usedBySoftware.push(addr);
     }
 
-    function getSoftwareVersion(bytes32 sourceCodeHash) public view returns(string memory) {
-        return versionRecord[sourceCodeHash];
-    }
-
-    function getSoftwareName(bytes32 sourceCodeHash, string memory version) public view returns(string memory) {
-        return nameRecord[sourceCodeHash][version];
-    }
-
-    function setSoftwareNameVersion(bytes32 sourceCodeHash,  string memory name, string memory version)
+    function logSoftwareNameVersion(bytes32 sourceCodeHash,  string memory name, string memory version)
         public member(msg.sender) validEblocBrokerProvider() {
-        versionRecord[sourceCodeHash] = version;
-        nameRecord[sourceCodeHash][version] = name;
+        emit LogSoftwareNameVersion(msg.sender, sourceCodeHash, name, version);
+    }
+
+    function setNextCounter(bytes32 sourceCodeHash) public member(msg.sender) validEblocBrokerProvider() returns (uint32) {
+        globalIndexCounter += 1;
+        owner.push(msg.sender);
+        return globalIndexCounter;
+    }
+
+    function getSoftwareExecutionCounter() public view returns(uint32) {
+        return softwareExecutionNumber;
     }
 
     function addSoftwareExecRecord(bytes32 sourceCodeHash, uint32 index, bytes32[] memory inputHash, bytes32[] memory outputHash)
-        public member(msg.sender) validEblocBrokerProvider() {
+        public member(msg.sender) validEblocBrokerProvider() softwareOwnerCheck(index) {
+        softwareExecutionNumber += 1;
         ResearchCertificate(ResearchCertificateAddress).createCertificate(msg.sender, sourceCodeHash);
         //
         for (uint256 i = 0; i < inputHash.length; i++) {
@@ -305,11 +319,14 @@ contract AutonomousSoftwareOrg {
         emit LogSoftwareExecRecord(msg.sender, sourceCodeHash, index, inputHash, outputHash);
     }
 
-    function delSoftwareExecRecord(bytes32 sourceCodeHash, uint32 index) public {
+    function delSoftwareExecRecord(bytes32 sourceCodeHash, uint32 index) public member(msg.sender) softwareOwnerCheck(index) {
+        require(incoming[sourceCodeHash][index][0] > 0 || incoming[sourceCodeHash][index][0] > 0);
         delete incoming[sourceCodeHash][index];
         delete outgoing[sourceCodeHash][index];
         delete incomingLen[sourceCodeHash][index];
         delete outgoingLen[sourceCodeHash][index];
+        owner[index] = address(0);
+        softwareExecutionNumber -= 1;
     }
 
     function getIncomingLen(bytes32 sourceCodeHash, uint32 index) public view returns(uint) {

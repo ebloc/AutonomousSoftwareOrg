@@ -1,4 +1,4 @@
-## network=sepolia
+## network=bloxberg_core
 Brownie v1.19.3 - Python development framework for Ethereum
 
 New compatible solc version available: 0.8.22
@@ -45,15 +45,15 @@ Generating build data...
  - SafeMath32
  - Token
 
-Project has been compiled. Build artifacts saved at /home/alper/git/eBlocBrokerGetter/build/contracts
+Project has been compiled. Build artifacts saved at /home/alper/git/AutonomousSoftwareOrg/build/contracts
 Brownie v1.19.3 - Python development framework for Ethereum
 
-EblocbrokergetterProject is the active project.
+AutonomoussoftwareorgProject is the active project.
 
 Running '[0;1;34mscripts/AutonomousSoftwareOrg.py[0;m::[0;1;36mmain[0;m'...
-Transaction sent: [0;1;34m0xf3ee1cdd035577edf3fc0d310946480df93479b3d15c0d1bb8d69934e4e02c3b[0;m
-  Gas price: [0;1;34m0.123547572[0;m gwei   Gas limit: [0;1;34m262296[0;m   Nonce: [0;1;34m60[0;m
-  Waiting for confirmation... -  Waiting for confirmation... \  Waiting for confirmation... |  Waiting for confirmation... /  Waiting for confirmation... -  Waiting for confirmation... \  Waiting for confirmation... |  Waiting for confirmation... /  Waiting for confirmation... -  Waiting for confirmation... \  Waiting for confirmation... |  Waiting for confirmation... /  Waiting for confirmation... -  Waiting for confirmation... \  Waiting for confirmation... |  Waiting for confirmation... /  Waiting for confirmation... -  Waiting for confirmation... \  eBlocBrokerGetter.constructor confirmed   Block: [0;1;34m5123069[0;m   Gas used: [0;1;34m238451[0;m ([0;1;34m90.91%[0;m)
-  eBlocBrokerGetter deployed at: [0;1;34m0x99dc0adAEc1bc9972ca929FCd5951cB1Cdc7B1EC[0;m
+Transaction sent: [0;1;34m0xa9d9a5129b9d408f5248e32d0f2134df2009172bf741e12d83f7644e6e83b3a0[0;m
+  Gas price: [0;1;34m0.002[0;m gwei   Gas limit: [0;1;34m3116290[0;m   Nonce: [0;1;34m4017[0;m
+  Waiting for confirmation... -  Waiting for confirmation... \  Waiting for confirmation... |  Waiting for confirmation... /  AutonomousSoftwareOrg.constructor confirmed   Block: [0;1;34m23844951[0;m   Gas used: [0;1;34m2832991[0;m ([0;1;34m90.91%[0;m)
+  AutonomousSoftwareOrg deployed at: [0;1;34m0x7FCCc5e2029a1A4818CB02D7824FEf6ceB2028c1[0;m
 
 ## setting abi... done

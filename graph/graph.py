@@ -12,7 +12,7 @@ def page_rank(G):
     _max = 0.0
     pr = nx.pagerank(G, alpha=0.9)
     for key, value in pr.items():
-        # print(f"{key} => {value}")
+        print(f"{key} => {value}")
         if value > _max:
             index_k = key
             _max = value
