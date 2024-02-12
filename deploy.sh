@@ -1,7 +1,6 @@
 #!/bin/bash
 
 main () {
-    # network="sepolia"
     network="bloxberg_core"
     printf "## network=$network\n"
     rm -rf build/

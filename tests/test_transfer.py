@@ -105,6 +105,7 @@ def test_AutonomousSoftwareOrg(accounts):
     output = auto.getSoftwareVersionRecords(0)
     log(output[1])
     #
+
     tx = auto.setNextCounter(se)
     index = return_value = tx.return_value
     with brownie.reverts():
@@ -112,31 +113,36 @@ def test_AutonomousSoftwareOrg(accounts):
 
     input_hash = [md5_hash(), "0xabcd"]
     output_hash = [md5_hash(), "0xabcde", md5_hash()]
-    auto.addSoftwareExecRecord(
+    tx = auto.addSoftwareExecRecord(
         se, index, input_hash, output_hash, {"from": accounts[0]}
     )
+
+    input_hash = [md5_hash(), "0xabcd"]
+    output_hash = [md5_hash(), "0xabcde", md5_hash()]
+    tx = auto.addSoftwareExecRecord(
+        se, 0, input_hash, output_hash, {"from": accounts[0]}
+    )
+
     tx = auto.logSoftwareNameVersion(se, "matlab", "v1.0.0")
     assert tx.events["LogSoftwareNameVersion"]["name"] == "matlab"
     assert tx.events["LogSoftwareNameVersion"]["version"] == "v1.0.0"
     #
-    assert auto.getSoftwareExecutionCounter() == 1
+    assert auto.getSoftwareExecutionCounter() == 2
+
     auto.delSoftwareExecRecord(se, index)
     with brownie.reverts():
         auto.delSoftwareExecRecord(se, index)
 
-    assert auto.getSoftwareExecutionCounter() == 0
+    assert auto.getSoftwareExecutionCounter() == 1
     # ----------------------------------------------------------------------
-    tx = auto.setNextCounter(se)
-    index = return_value = tx.return_value
-    assert index == 2
-
     input_hash_1 = [output_hash[0], output_hash[1]]
     output_hash_1 = [md5_hash()]
     se_2 = md5_hash()
-    auto.addSoftwareExecRecord(
-        se_2, index, input_hash_1, output_hash_1, {"from": accounts[0]}
+    tx = auto.addSoftwareExecRecord(
+        se_2, 0, input_hash_1, output_hash_1, {"from": accounts[0]}
     )
-    assert auto.getSoftwareExecutionCounter() == 1
+    assert auto.getSoftwareExecutionCounter() == 2
+    assert tx.return_value == 3
     # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     log()
     jobs = [f"{se}_{index}", f"{se_2}_{index}"]

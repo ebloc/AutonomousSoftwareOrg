@@ -12,8 +12,8 @@ def main():
         2,
         3,
         "0x",
-        "0x00A7413ACb69D7F9a03ab92B77c49628bD340274",  # eBlocBroker
-        "0x17e85EF468e5e085659d0443e29856a9054f0E7A",  # ResearchCertificate
+        "0x75a7357764379F26d2CF42E27e274D795B0fC977",  # eBlocBroker
+        "0xD6397bf1A42f01C753dcD638C6eD3486963A09eD",  # ResearchCertificate
         {"from": acct},
     )
     if network.show_active() == "private":

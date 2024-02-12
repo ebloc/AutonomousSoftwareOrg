@@ -11,8 +11,12 @@ def page_rank(G):
     index_k = 0
     _max = 0.0
     pr = nx.pagerank(G, alpha=0.9)
+    #: sort by values
+    pr = {k: v for k, v in sorted(pr.items(), key=lambda item: item[1])}
     for key, value in pr.items():
-        print(f"{key} => {value}")
+        if "." in key:
+            print(f"{key} => {value}")
+
         if value > _max:
             index_k = key
             _max = value

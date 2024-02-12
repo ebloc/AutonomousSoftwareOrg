@@ -301,7 +301,17 @@ contract AutonomousSoftwareOrg {
     }
 
     function addSoftwareExecRecord(bytes32 sourceCodeHash, uint32 index, bytes32[] memory inputHash, bytes32[] memory outputHash)
-        public member(msg.sender) validEblocBrokerProvider() softwareOwnerCheck(index) {
+        public member(msg.sender) validEblocBrokerProvider() returns (uint32) {
+
+        if (index == 0) {
+            globalIndexCounter += 1;
+            owner.push(msg.sender);
+            index = globalIndexCounter;
+        }
+        else {
+            require(owner[index] == msg.sender);
+        }
+
         softwareExecutionNumber += 1;
         ResearchCertificate(ResearchCertificateAddress).createCertificate(msg.sender, sourceCodeHash);
         //
@@ -317,6 +327,7 @@ contract AutonomousSoftwareOrg {
         }
         outgoingLen[sourceCodeHash][index] = outgoingLen[sourceCodeHash][index] + outputHash.length;
         emit LogSoftwareExecRecord(msg.sender, sourceCodeHash, index, inputHash, outputHash);
+        return index;
     }
 
     function delSoftwareExecRecord(bytes32 sourceCodeHash, uint32 index) public member(msg.sender) softwareOwnerCheck(index) {

@@ -3,6 +3,15 @@ Brownie v1.19.3 - Python development framework for Ethereum
 
 New compatible solc version available: 0.8.22
 Compiling contracts...
+  Solc version: 0.6.12
+  Optimizer: Enabled  Runs: 200
+  EVM Version: Istanbul
+Generating build data...
+ - SafeMath
+ - SafeMath32
+ - Token
+
+Compiling contracts...
   Solc version: 0.8.22
   Optimizer: Enabled  Runs: 200
   EVM Version: Istanbul
@@ -36,24 +45,15 @@ Generating build data...
  - eBlocBrokerGetter
  - eBlocBrokerInterface
 
-Compiling contracts...
-  Solc version: 0.6.12
-  Optimizer: Enabled  Runs: 200
-  EVM Version: Istanbul
-Generating build data...
- - SafeMath
- - SafeMath32
- - Token
-
 Project has been compiled. Build artifacts saved at /home/alper/git/AutonomousSoftwareOrg/build/contracts
 Brownie v1.19.3 - Python development framework for Ethereum
 
 AutonomoussoftwareorgProject is the active project.
 
 Running '[0;1;34mscripts/AutonomousSoftwareOrg.py[0;m::[0;1;36mmain[0;m'...
-Transaction sent: [0;1;34m0xa9d9a5129b9d408f5248e32d0f2134df2009172bf741e12d83f7644e6e83b3a0[0;m
-  Gas price: [0;1;34m0.002[0;m gwei   Gas limit: [0;1;34m3116290[0;m   Nonce: [0;1;34m4017[0;m
-  Waiting for confirmation... -  Waiting for confirmation... \  Waiting for confirmation... |  Waiting for confirmation... /  AutonomousSoftwareOrg.constructor confirmed   Block: [0;1;34m23844951[0;m   Gas used: [0;1;34m2832991[0;m ([0;1;34m90.91%[0;m)
-  AutonomousSoftwareOrg deployed at: [0;1;34m0x7FCCc5e2029a1A4818CB02D7824FEf6ceB2028c1[0;m
+Transaction sent: [0;1;34m0x63b9ed3565b2d10cf4f1a6f982fabbc7815a64c52545ded1c4840d3297094536[0;m
+  Gas price: [0;1;34m0.002[0;m gwei   Gas limit: [0;1;34m3347375[0;m   Nonce: [0;1;34m4038[0;m
+  Waiting for confirmation... -  Waiting for confirmation... \  Waiting for confirmation... |  Waiting for confirmation... /  Waiting for confirmation... -  AutonomousSoftwareOrg.constructor confirmed   Block: [0;1;34m23976787[0;m   Gas used: [0;1;34m3043069[0;m ([0;1;34m90.91%[0;m)
+  AutonomousSoftwareOrg deployed at: [0;1;34m0x4A8F82454Ca791C061c8d3eFF086893e79e04A71[0;m
 
 ## setting abi... done
