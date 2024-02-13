@@ -1,0 +1,33 @@
+digraph G {
+    // nodesep=.05;
+    rankdir=LR;
+    // node [shape=record,width=.1,height=.1]
+    compound=true;
+    forcelabels=true;
+    node [style=filled fillcolor=white,shape=circle];
+    42 [weight=99]
+    24 [weight=99]
+    23 [weight=99]
+    25 [weight=99]
+    18 [weight=99]
+    38 [weight=99]
+    39 [weight=99]
+    //
+    node [style=filled fillcolor="#b3ffb3",shape=box]
+    22.19 []
+    22.20 []
+    22.15 []
+
+    22.19->42
+    22.20->42
+    22.15->42
+
+    24->22.19
+    23->22.19
+    25->22.19
+    25->22.20
+    18->22.20
+    18->22.15
+    38->22.15
+    39->22.15
+}

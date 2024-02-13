@@ -10,7 +10,42 @@ import {Context} from "./ERC20/Context.sol";
 import {Strings} from "./Strings.sol";
 import {IERC165, ERC165} from "./ERC165.sol";
 import {IERC721Errors} from "./draft-IERC6093.sol";
-import "./Counters.sol";
+import "./SafeMath.sol";
+/* import "./Counters.sol"; */
+
+
+/**
+ * @title Counters
+ * @author Matt Condon (@shrugs)
+ * @dev Provides counters that can only be incremented or decremented by one. This can be used e.g. to track the number
+ * of elements in a mapping, issuing ERC721 ids, or counting request ids.
+ *
+ * Include with using Counters for Counters.Counter;
+ * Since it is not possible to overflow a 256 bit integer with increments of one, increment can skip the {SafeMath}
+ * overflow check, thereby saving gas. This does assume however correct usage, in that the underlying _value is never
+ * directly accessed.
+ */
+library Counters {
+    using SafeMath for uint256;
+
+    struct Counter {
+
+        uint256 _value;
+    }
+
+    function current(Counter storage counter) internal view returns (uint256) {
+        return counter._value;
+    }
+
+    function increment(Counter storage counter) internal {
+
+        counter._value += 1;
+    }
+
+    function decrement(Counter storage counter) internal {
+        counter._value = counter._value.sub(1);
+    }
+}
 
 // https://docs.openzeppelin.com/contracts/3.x/erc721
 
@@ -487,7 +522,6 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     // -=-=-=-=-
 
     mapping(uint256 => bytes32) private _tokenURIs;
-
     mapping(uint256 => bytes32) private _hashIDs;
 
     /**
