@@ -123,10 +123,11 @@ def test_AutonomousSoftwareOrg(accounts):
         se, 0, input_hash, output_hash, {"from": accounts[0]}
     )
 
-    tx = auto.logSoftwareNameVersion(se, "matlab", "v1.0.0")
+    tx = auto.setSoftwareNameVersion(se, "matlab", "v1.0.0")
     assert tx.events["LogSoftwareNameVersion"]["name"] == "matlab"
     assert tx.events["LogSoftwareNameVersion"]["version"] == "v1.0.0"
-    #
+    assert auto.getSoftwareName(se, auto.getSoftwareVersion(se)) == "matlab"
+
     assert auto.getSoftwareExecutionCounter() == 2
 
     auto.delSoftwareExecRecord(se, index)
@@ -155,8 +156,8 @@ def test_AutonomousSoftwareOrg(accounts):
         nodes[counter] = job
         counter += 1
         output = []
-        for i in range(auto.getIncomingLen(_se, _index)):
-            output.append(auto.getIncoming(_se, _index, i))
+        for i in range(auto.getNoOfIncomingDataArcs(_se, _index)):
+            output.append(auto.getIncomingData(_se, _index, i))
 
         for h in output:
             try:
@@ -167,8 +168,8 @@ def test_AutonomousSoftwareOrg(accounts):
                 counter += 1
 
         output = []
-        for i in range(auto.getOutgoingLen(_se, _index)):
-            output.append(auto.getOutgoing(_se, _index, i))
+        for i in range(auto.getNoOfOutgoingDataArcs(_se, _index)):
+            output.append(auto.getOutgoingData(_se, _index, i))
 
         for h in output:
             try:
@@ -212,8 +213,8 @@ def test_AutonomousSoftwareOrg(accounts):
         nodes[counter] = _se
         counter += 1
         output = []
-        for i in range(auto.getIncomingLen(_se, _index)):
-            output.append(auto.getIncoming(_se, _index, i))
+        for i in range(auto.getNoOfIncomingDataArcs(_se, _index)):
+            output.append(auto.getIncomingData(_se, _index, i))
 
         for h in output:
             # log(f"{_h} -> {job}", h=False)
@@ -227,8 +228,8 @@ def test_AutonomousSoftwareOrg(accounts):
             counter += 1
 
         output = []
-        for i in range(auto.getOutgoingLen(_se, _index)):
-            output.append(auto.getOutgoing(_se, _index, i))
+        for i in range(auto.getNoOfOutgoingDataArcs(_se, _index)):
+            output.append(auto.getOutgoingData(_se, _index, i))
 
         for h in output:
             # log(f"{job} -> {_h}", h=False)
