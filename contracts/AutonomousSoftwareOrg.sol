@@ -74,8 +74,6 @@ contract AutonomousSoftwareOrg {
     uint32 globalIndexCounter;
     address[] softwareExecutionRecordOwner;
 
-    SoftwareVersionRecord[] versionRecords;
-
     MemberInfo[] membersInfo;
     Proposal[] proposals;
     Donation[] donations;
@@ -86,7 +84,6 @@ contract AutonomousSoftwareOrg {
     address public ResearchCertificateAddress;
 
     event LogSoftwareExecRecord(address indexed submitter, bytes32 indexed sourceCodeHash, uint32 index, bytes32[]  inputHash, bytes32[] outputHash);
-    event LogSoftwareVersionRecord(address submitter, string url, string version, bytes32 sourceCodeHash);
     event LogPropose(uint propNo, string title, string url, uint requestedFund, uint deadline);
     event LogProposalVote(uint voteCount, uint blockNum, address voter);
     event LogDonation(address donor,uint amount,uint blknum);
@@ -285,7 +282,7 @@ contract AutonomousSoftwareOrg {
         usedBySoftware.push(addr);
     }
 
-    function setNextCounter(bytes32 sourceCodeHash) public member(msg.sender) validEblocBrokerProvider() returns (uint32) {
+    function setNextExecutionCounter(bytes32 sourceCodeHash) public member(msg.sender) validEblocBrokerProvider() returns (uint32) {
         globalIndexCounter += 1;
         softwareExecutionRecordOwner.push(msg.sender);
         return globalIndexCounter;
@@ -335,21 +332,6 @@ contract AutonomousSoftwareOrg {
         softwareExecutionNumber -= 1;
     }
 
-    function getSoftwareVersion(bytes32 sourceCodeHash) public view returns(string memory) {
-        return versionRecord[sourceCodeHash];
-    }
-
-    function getSoftwareName(bytes32 sourceCodeHash, string memory version) public view returns(string memory) {
-        return nameRecord[sourceCodeHash][version];
-    }
-
-    function setSoftwareNameVersion(bytes32 sourceCodeHash,  string memory name, string memory version)
-        public member(msg.sender) validEblocBrokerProvider() {
-        versionRecord[sourceCodeHash] = version;
-        nameRecord[sourceCodeHash][version] = name;
-        emit LogSoftwareNameVersion(msg.sender, sourceCodeHash, name, version);
-    }
-
     function getNoOfIncomingDataArcs(bytes32 sourceCodeHash, uint32 index) public view returns(uint) {
         return incomingLen[sourceCodeHash][index];
     }
@@ -366,27 +348,20 @@ contract AutonomousSoftwareOrg {
         return outgoing[sourceCodeHash][index][i];
     }
 
-    ///////////////////////////////////////////////////////////////////////
-    function addSoftwareVersionRecord(string memory url, bytes32 sourceCodeHash, string memory version)
-        public {
-        require(eBlocBroker(eBlocBrokerAddress).doesProviderExist(msg.sender));
-        versionRecords.push(SoftwareVersionRecord(msg.sender, url, version, sourceCodeHash));
-        emit LogSoftwareVersionRecord(msg.sender, url, version, sourceCodeHash);
+    function setSoftwareNameVersion(bytes32 sourceCodeHash,  string memory name, string memory version)
+        public member(msg.sender) validEblocBrokerProvider() {
+        versionRecord[sourceCodeHash] = version;
+        nameRecord[sourceCodeHash][version] = name;
+        emit LogSoftwareNameVersion(msg.sender, sourceCodeHash, name, version);
     }
 
-    function getSoftwareVersionRecords(uint32 id)
-        public view returns(address, string memory, string memory, bytes32) {
-        return(versionRecords[id].submitter,
-               versionRecords[id].url,
-               versionRecords[id].version,
-               versionRecords[id].sourceCodeHash);
+    function getSoftwareVersion(bytes32 sourceCodeHash) public view returns(string memory) {
+        return versionRecord[sourceCodeHash];
     }
 
-    function getSoftwareVersionRecordsLength()
-        public view returns (uint) {
-        return(versionRecords.length);
+    function getSoftwareName(bytes32 sourceCodeHash, string memory version) public view returns(string memory) {
+        return nameRecord[sourceCodeHash][version];
     }
-    ///////////////////////////////////////////////////////////////////////
 
     function getAutonomousSoftwareOrgInfo()
         public view returns (string memory, uint, uint, uint, uint) {

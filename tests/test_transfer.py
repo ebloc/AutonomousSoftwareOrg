@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import atexit
 from broker._utils._log import log
 import brownie
 import pytest
@@ -9,6 +10,23 @@ from broker.eblocbroker_scripts.utils import Cent
 auto = None
 ebb = None
 roc = None
+
+gas_costs = {}
+
+
+def print_gas_costs():
+    log("average_gas_costs=", end="")
+    gas_costs_items_temp = {}
+    for k, v in gas_costs.items():
+        if v:
+            gas_costs_items_temp[k] = int(sum(v) / len(v))
+
+    log(dict(gas_costs_items_temp))
+
+
+@pytest.fixture(scope="session", autouse=True)
+def cleanup():
+    print_gas_costs()
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -26,37 +44,58 @@ def md5_hash():
     return "%032x" % _hash
 
 
+def append_gas_cost(func_n, tx):
+    if func_n not in gas_costs:
+        gas_costs[func_n] = []
+
+    gas_costs[func_n].append(tx.__dict__["gas_used"])
+
+
 def test_paper(web3, accounts):
     print(auto.getAutonomousSoftwareOrgInfo())
-    auto.BecomeMemberCandidate("0x", {"from": accounts[1]})
+    tx = auto.BecomeMemberCandidate("0x", {"from": accounts[1]})
+    append_gas_cost("BecomeMemberCandidate", tx)
     auto.BecomeMemberCandidate("0x", {"from": accounts[2]})
     auto.BecomeMemberCandidate("0x", {"from": accounts[3]})
     assert auto.getMemberInfoLength() == 4
     log(auto.getCandidateMemberInfo(3))
-    auto.VoteMemberCandidate(2, {"from": accounts[0]})
+    tx = auto.VoteMemberCandidate(2, {"from": accounts[0]})
+    append_gas_cost("VoteMemberCandidate", tx)
     auto.VoteMemberCandidate(3, {"from": accounts[1]})
     auto.VoteMemberCandidate(3, {"from": accounts[0]})
     log(auto.getMemberInfo(2, {"from": accounts[0]}))
     log(auto.getAutonomousSoftwareOrgInfo())
     log(auto.getMemberInfo(2, {"from": accounts[2]}))
-    auto.DelVoteMemberCandidate(3, {"from": accounts[0]})
+    tx = auto.DelVoteMemberCandidate(3, {"from": accounts[0]})
+    append_gas_cost("DelVoteMemberCandidate", tx)
     auto.VoteMemberCandidate(3, {"from": accounts[0]})
     log(auto.getMemberInfo(2, {"from": accounts[2]}))
     log(auto.getAutonomousSoftwareOrgInfo())
-    auto.Donate({"from": accounts[5], "value": web3.toWei(2, "wei")})
+    tx = auto.Donate({"from": accounts[5], "value": web3.toWei(2, "wei")})
+    append_gas_cost("Donate", tx)
     auto.Donate({"from": accounts[6], "value": web3.toWei(2, "wei")})
     blockNum = web3.eth.blockNumber
-    auto.ProposeProposal(
+    tx = auto.ProposeProposal(
         "Prop0", "1.0.0", "0x", 4, blockNum + 30, {"from": accounts[2]}
     )
+    append_gas_cost("ProposeProposal", tx)
     log(auto.getProposal(0))
-    auto.VoteForProposal(0, {"from": accounts[0]})
+    tx = auto.VoteForProposal(0, {"from": accounts[0]})
+    append_gas_cost("VoteForProposal", tx)
     auto.VoteForProposal(0, {"from": accounts[1]})
-    auto.WithdrawProposalFund(0, {"from": accounts[2]})
+    tx = auto.WithdrawProposalFund(0, {"from": accounts[2]})
+    append_gas_cost("WithdrawProposalFund", tx)
     log(auto.getProposal(0))
     with brownie.reverts():
         #: fails there is not enough vote
-        auto.WithdrawProposalFund(0, {"from": accounts[0]})
+        tx = auto.WithdrawProposalFund(0, {"from": accounts[0]})
+        append_gas_cost("WithdrawProposalFund", tx)
+
+    tx = auto.Cite(str.encode("10.1016/j.arabjc.2017.05.011"))
+    append_gas_cost("Cite", tx)
+
+    tx = auto.UsedBySoftware(accounts[0])
+    append_gas_cost("UsedBySoftware", tx)
 
 
 def test_AutonomousSoftwareOrg(accounts):
@@ -98,15 +137,8 @@ def test_AutonomousSoftwareOrg(accounts):
         commitment_bn,
         {"from": accounts[0]},
     )
-    _hash = md5_hash()
-    auto.addSoftwareVersionRecord(
-        "github.com/ebloc/ebloc-broker", _hash, "v1.0.0", {"from": accounts[0]}
-    )
-    output = auto.getSoftwareVersionRecords(0)
-    log(output[1])
-    #
-
-    tx = auto.setNextCounter(se)
+    tx = auto.setNextExecutionCounter(se)
+    append_gas_cost("setNextExecutionCounter", tx)
     index = return_value = tx.return_value
     with brownie.reverts():
         auto.delSoftwareExecRecord(se, index)
@@ -124,6 +156,7 @@ def test_AutonomousSoftwareOrg(accounts):
     )
 
     tx = auto.setSoftwareNameVersion(se, "matlab", "v1.0.0")
+    append_gas_cost("setSoftwareNameVersion", tx)
     assert tx.events["LogSoftwareNameVersion"]["name"] == "matlab"
     assert tx.events["LogSoftwareNameVersion"]["version"] == "v1.0.0"
     assert auto.getSoftwareName(se, auto.getSoftwareVersion(se)) == "matlab"
@@ -243,6 +276,22 @@ def test_AutonomousSoftwareOrg(accounts):
 
     log("]);")
 
+    input_hash_1 = []
+    output_hash_1 = []
+    se_2 = md5_hash()
+    tx = auto.addSoftwareExecRecord(
+        se_2, 0, input_hash_1, output_hash_1, {"from": accounts[0]}
+    )
+    append_gas_cost("addSoftwareExecRecord", tx)
+
     # log(output)
 
-    breakpoint()  # DEBUG
+
+def report():
+    """Cleanup a testing directory once we are finished.
+
+    __ https://stackoverflow.com/a/51025279/2402577"""
+    print_gas_costs()  #
+
+
+atexit.register(report)
