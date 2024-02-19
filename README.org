@@ -10,7 +10,8 @@ AutonomousSoftwareOrg is a Solidity smart contract that implements an autonomous
 
 #+begin_src yaml
 bloxberg:
-    address: "0xac545bF170DDEc6793DFA5f6CE899aD199893353"
+    address: "0x68a5Ce8F62eE6a507d68B924d36Ec224D2B7B3F3"
+    tx_hash: "0x9fc44f672a690ee462ca409478f078bca1a85bfc1c52bd858a3a44a8b7c26f86"
 sepolia:
     address: "0xC26ad052140a483f0342DD6e58c3D3A49DBfc106"
     tx_hash: "0x596adaa251729551525850d913424946f3096821fc8a12e6bb5de0c6094cd29a"

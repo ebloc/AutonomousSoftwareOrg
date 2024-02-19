@@ -72,9 +72,7 @@ contract AutonomousSoftwareOrg {
 
     uint32 softwareExecutionNumber;
     uint32 globalIndexCounter;
-    address[] owner;
-
-    SoftwareVersionRecord[] versionRecords;
+    address[] softwareExecutionRecordOwner;
 
     MemberInfo[] membersInfo;
     Proposal[] proposals;
@@ -86,7 +84,6 @@ contract AutonomousSoftwareOrg {
     address public ResearchCertificateAddress;
 
     event LogSoftwareExecRecord(address indexed submitter, bytes32 indexed sourceCodeHash, uint32 index, bytes32[]  inputHash, bytes32[] outputHash);
-    event LogSoftwareVersionRecord(address submitter, string url, string version, bytes32 sourceCodeHash);
     event LogPropose(uint propNo, string title, string url, uint requestedFund, uint deadline);
     event LogProposalVote(uint voteCount, uint blockNum, address voter);
     event LogDonation(address donor,uint amount,uint blknum);
@@ -172,8 +169,8 @@ contract AutonomousSoftwareOrg {
     }
 
 
-    modifier softwareOwnerCheck(uint index) {
-        require(owner[index] == msg.sender);
+    modifier softwareExecutionRecordOwnerCheck(uint index) {
+        require(softwareExecutionRecordOwner[index] == msg.sender);
         _;
     }
 
@@ -192,7 +189,7 @@ contract AutonomousSoftwareOrg {
         M = m;
         N = n;
 
-        owner.push(msg.sender); // dummy address
+        softwareExecutionRecordOwner.push(msg.sender); // dummy address
         eBlocBrokerAddress = _eBlocBrokerAddress;
         ResearchCertificateAddress = _ResearchCertificateAddress;
     }
@@ -285,14 +282,9 @@ contract AutonomousSoftwareOrg {
         usedBySoftware.push(addr);
     }
 
-    function logSoftwareNameVersion(bytes32 sourceCodeHash,  string memory name, string memory version)
-        public member(msg.sender) validEblocBrokerProvider() {
-        emit LogSoftwareNameVersion(msg.sender, sourceCodeHash, name, version);
-    }
-
-    function setNextCounter(bytes32 sourceCodeHash) public member(msg.sender) validEblocBrokerProvider() returns (uint32) {
+    function setNextExecutionCounter(bytes32 sourceCodeHash) public member(msg.sender) validEblocBrokerProvider() returns (uint32) {
         globalIndexCounter += 1;
-        owner.push(msg.sender);
+        softwareExecutionRecordOwner.push(msg.sender);
         return globalIndexCounter;
     }
 
@@ -305,11 +297,11 @@ contract AutonomousSoftwareOrg {
 
         if (index == 0) {
             globalIndexCounter += 1;
-            owner.push(msg.sender);
+            softwareExecutionRecordOwner.push(msg.sender);
             index = globalIndexCounter;
         }
         else {
-            require(owner[index] == msg.sender);
+            require(softwareExecutionRecordOwner[index] == msg.sender);
         }
 
         softwareExecutionNumber += 1;
@@ -330,54 +322,45 @@ contract AutonomousSoftwareOrg {
         return index;
     }
 
-    function delSoftwareExecRecord(bytes32 sourceCodeHash, uint32 index) public member(msg.sender) softwareOwnerCheck(index) {
+    function delSoftwareExecRecord(bytes32 sourceCodeHash, uint32 index) public member(msg.sender) softwareExecutionRecordOwnerCheck(index) {
         require(incoming[sourceCodeHash][index][0] > 0 || incoming[sourceCodeHash][index][0] > 0);
         delete incoming[sourceCodeHash][index];
         delete outgoing[sourceCodeHash][index];
         delete incomingLen[sourceCodeHash][index];
         delete outgoingLen[sourceCodeHash][index];
-        owner[index] = address(0);
+        softwareExecutionRecordOwner[index] = address(0);
         softwareExecutionNumber -= 1;
     }
 
-    function getIncomingLen(bytes32 sourceCodeHash, uint32 index) public view returns(uint) {
+    function getNoOfIncomingDataArcs(bytes32 sourceCodeHash, uint32 index) public view returns(uint) {
         return incomingLen[sourceCodeHash][index];
     }
 
-    function getOutgoingLen(bytes32 sourceCodeHash, uint32 index) public view returns(uint) {
+    function getNoOfOutgoingDataArcs(bytes32 sourceCodeHash, uint32 index) public view returns(uint) {
         return outgoingLen[sourceCodeHash][index];
     }
 
-    function getIncoming(bytes32 sourceCodeHash, uint32 index, uint i) public view returns(uint) {
+    function getIncomingData(bytes32 sourceCodeHash, uint32 index, uint i) public view returns(uint) {
         return incoming[sourceCodeHash][index][i];
     }
 
-    function getOutgoing(bytes32 sourceCodeHash, uint32 index, uint i) public view returns(uint) {
+    function getOutgoingData(bytes32 sourceCodeHash, uint32 index, uint i) public view returns(uint) {
         return outgoing[sourceCodeHash][index][i];
     }
 
-    function getVersionRecord(bytes32 sourceCodeHash) public view returns(string memory) {
+    function setSoftwareNameVersion(bytes32 sourceCodeHash,  string memory name, string memory version)
+        public member(msg.sender) validEblocBrokerProvider() {
+        versionRecord[sourceCodeHash] = version;
+        nameRecord[sourceCodeHash][version] = name;
+        emit LogSoftwareNameVersion(msg.sender, sourceCodeHash, name, version);
+    }
+
+    function getSoftwareVersion(bytes32 sourceCodeHash) public view returns(string memory) {
         return versionRecord[sourceCodeHash];
     }
 
-    function addSoftwareVersionRecord(string memory url, bytes32 sourceCodeHash, string memory version)
-        public {
-        require(eBlocBroker(eBlocBrokerAddress).doesProviderExist(msg.sender));
-        versionRecords.push(SoftwareVersionRecord(msg.sender, url, version, sourceCodeHash));
-        emit LogSoftwareVersionRecord(msg.sender, url, version, sourceCodeHash);
-    }
-
-    function getSoftwareVersionRecords(uint32 id)
-        public view returns(address, string memory, string memory, bytes32) {
-        return(versionRecords[id].submitter,
-               versionRecords[id].url,
-               versionRecords[id].version,
-               versionRecords[id].sourceCodeHash);
-    }
-
-    function geSoftwareVersionRecordsLength()
-        public view returns (uint) {
-        return(versionRecords.length);
+    function getSoftwareName(bytes32 sourceCodeHash, string memory version) public view returns(string memory) {
+        return nameRecord[sourceCodeHash][version];
     }
 
     function getAutonomousSoftwareOrgInfo()
