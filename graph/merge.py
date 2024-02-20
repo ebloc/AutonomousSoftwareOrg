@@ -4,7 +4,7 @@
 import networkx as nx
 
 
-def merge(G, n1, n2):
+def _merge(G, n1, n2):
     """Merge two nodes.
 
     __ https://stackoverflow.com/a/58508427/2402577
@@ -26,10 +26,11 @@ def merge(G, n1, n2):
     return G
 
 
-def main():
-    fn = "original.gv"
-    G = nx.drawing.nx_pydot.read_dot(fn)
+def merge(fn="/home/alper/git/AutonomousSoftwareOrg/graph/original.gv"):
+    if type(fn) is list:
+        fn = fn[0]
 
+    G = nx.drawing.nx_pydot.read_dot(fn)
     sw_nodes = []
     for node in list(G.nodes):
         if "." in node:
@@ -49,10 +50,10 @@ def main():
                 if idx < len(value) - 1:
                     if idx == 0:
                         # print(f"merged: {v} {value[1]}")
-                        G = merge(G, v, value[1])
+                        G = _merge(G, v, value[1])
                     else:
                         # print(f"merged: {value[0]} {value[idx + 1]}")
-                        G = merge(G, value[0], value[idx + 1])
+                        G = _merge(G, value[0], value[idx + 1])
             #
             # print(value)
 
@@ -61,8 +62,9 @@ def main():
             mapping = {node: f"{node.split('.')[0]}."}
             G = nx.relabel_nodes(G, mapping)
 
+    print("Please see the results in the <merged.gv> file.")
     nx.nx_pydot.write_dot(G, "merged.gv")
 
 
 if __name__ == "__main__":
-    main()
+    merge()
