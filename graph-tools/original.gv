@@ -6,9 +6,9 @@ digraph G {
     compound=true;
     forcelabels=true;
     node [style=filled fillcolor=white,shape=circle];
-    1 [weight=99]
+    1 [weight=99]  // xlabel="100"
     2 [weight=99]
-    3 [weight=99]  // xlabel="100"
+    3 [weight=99]
     5 [weight=99]
     6 [weight=99]
     8 [weight=99]
@@ -18,18 +18,18 @@ digraph G {
     13 [weight=99]
     15 [weight=99]
     16 [weight=99]
-    18 [weight=99]
+    18 [weight=100]
     20 [weight=99]
     21 [weight=99]
-    23 [weight=99]
-    24 [weight=99]
-    25 [weight=99]
+    23 [weight=10]
+    24 [weight=100]
+    25 [weight=1000]
     26 [weight=99]
     27 [weight=99]
     36 [weight=99]
     37 [weight=99]
-    38 [weight=99]
-    39 [weight=99]
+    38 [weight=900]
+    39 [weight=10]
     40 [weight=99]
     41 [weight=99]
     42 [weight=99]

@@ -51,9 +51,9 @@ Brownie v1.19.3 - Python development framework for Ethereum
 AutonomoussoftwareorgProject is the active project.
 
 Running '[0;1;34mscripts/AutonomousSoftwareOrg.py[0;m::[0;1;36mmain[0;m'...
-Transaction sent: [0;1;34m0x9fc44f672a690ee462ca409478f078bca1a85bfc1c52bd858a3a44a8b7c26f86[0;m
-  Awaiting transaction in the mempool... -  Gas price: [0;1;34m0.002[0;m gwei   Gas limit: [0;1;34m3166535[0;m   Nonce: [0;1;34m4040[0;m
-  AutonomousSoftwareOrg.constructor confirmed   Block: [0;1;34m24054664[0;m   Gas used: [0;1;34m2878669[0;m ([0;1;34m90.91%[0;m)
-  AutonomousSoftwareOrg deployed at: [0;1;34m0x68a5Ce8F62eE6a507d68B924d36Ec224D2B7B3F3[0;m
+Transaction sent: [0;1;34m0xc07dc41d0e435728a5e405a8697470c57db19db26a16aac6c97bdb1e81110359[0;m
+  Gas price: [0;1;34m0.002[0;m gwei   Gas limit: [0;1;34m3166549[0;m   Nonce: [0;1;34m4046[0;m
+  Waiting for confirmation... -  Waiting for confirmation... \  Waiting for confirmation... |  Waiting for confirmation... /  Waiting for confirmation... -  Waiting for confirmation... \  Waiting for confirmation... |  Waiting for confirmation... /  Waiting for confirmation... -  Waiting for confirmation... \  Waiting for confirmation... |  Waiting for confirmation... /  Waiting for confirmation... -  Waiting for confirmation... \  Waiting for confirmation... |  Waiting for confirmation... /  Waiting for confirmation... -  AutonomousSoftwareOrg.constructor confirmed   Block: [0;1;34m24136501[0;m   Gas used: [0;1;34m2878681[0;m ([0;1;34m90.91%[0;m)
+  AutonomousSoftwareOrg deployed at: [0;1;34m0x450eb7EC90418E9D768f85Ffa1b29187AD57251a[0;m
 
 ## setting abi... done
