@@ -1,0 +1,9 @@
+* README
+
+- [[https://visjs.github.io/vis-network/examples/network/events/interactionEvents.html]]
+
+-------
+
+#+begin_src bash
+dot -Tpng -Gdpi=300 original.gv > original.png && o original.png
+#+end_src
