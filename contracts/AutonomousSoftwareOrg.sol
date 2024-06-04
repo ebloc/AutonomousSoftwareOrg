@@ -220,13 +220,15 @@ contract AutonomousSoftwareOrg {
         validProposalNo(propNo) withinDeadline(propNo)
         member(msg.sender) enough_fund_balance(propNo) proposalOwner(propNo)
         proposalMajority(propNo) {
-        weiBalance -=  proposals[propNo].requestedFund;
+        uint fund = proposals[propNo].requestedFund;
+        weiBalance -=  fund;
+        proposals[propNo].requestedFund = 0;
         if (proposals[propNo].withdrawn == true) {
             revert();
         }
-        payable(msg.sender).transfer(proposals[propNo].requestedFund);
+        payable(msg.sender).transfer(fund);
         proposals[propNo].withdrawn = true;
-        emit LogWithdrawProposalFund(propNo,proposals[propNo].requestedFund,block.number,msg.sender);
+        emit LogWithdrawProposalFund(propNo,proposals[propNo].requestedFund, block.number, msg.sender);
     }
 
     function BecomeMemberCandidate(string memory url) public
@@ -271,7 +273,6 @@ contract AutonomousSoftwareOrg {
         weiBalance += msg.value;
         donations.push(Donation(msg.sender,msg.value,block.number));
         emit LogDonation(msg.sender, msg.value, block.number);
-
     }
 
     function Cite(bytes32 doiNumber) public  {
