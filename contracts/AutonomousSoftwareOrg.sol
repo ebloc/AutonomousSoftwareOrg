@@ -91,8 +91,13 @@ contract AutonomousSoftwareOrg {
     event LogHashROC(address indexed provider, bytes32 hash, uint roc, bool isIPFS);
     event LogSoftwareNameVersion(address indexed provider, bytes32 sourceCodeHash, string name, string version);
 
-    modifier enough_fund_balance(uint propNo) {
+    modifier enoughFundBalance(uint propNo) {
         require(weiBalance >= proposals[propNo].requestedFund);
+        _;
+    }
+
+    modifier sufficientFundBalance(uint propNo) {
+        require(proposals[propNo].requestedFund > 0);
         _;
     }
 
@@ -216,8 +221,9 @@ contract AutonomousSoftwareOrg {
 
     function WithdrawProposalFund(uint propNo)  public
         validProposalNo(propNo) withinDeadline(propNo)
-        member(msg.sender) enough_fund_balance(propNo) proposalOwner(propNo)
-        proposalMajority(propNo) {
+        member(msg.sender) enoughFundBalance(propNo)
+        proposalOwner(propNo) proposalMajority(propNo)
+        sufficientFundBalance(propNo) {
         uint fund = proposals[propNo].requestedFund;
         weiBalance -=  fund;
         proposals[propNo].requestedFund = 0;
