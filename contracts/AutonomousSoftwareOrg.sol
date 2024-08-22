@@ -96,7 +96,7 @@ contract AutonomousSoftwareOrg {
         _;
     }
 
-    modifier sufficientFundBalance(uint propNo) {
+    modifier fundNotWithdrawn(uint propNo) {
         require(proposals[propNo].requestedFund > 0);
         _;
     }
@@ -223,7 +223,7 @@ contract AutonomousSoftwareOrg {
         validProposalNo(propNo) withinDeadline(propNo)
         member(msg.sender) enoughFundBalance(propNo)
         proposalOwner(propNo) proposalMajority(propNo)
-        sufficientFundBalance(propNo) {
+        fundNotWithdrawn(propNo) {
         uint fund = proposals[propNo].requestedFund;
         weiBalance -=  fund;
         proposals[propNo].requestedFund = 0;
